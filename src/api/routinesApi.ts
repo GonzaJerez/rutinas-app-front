@@ -1,11 +1,9 @@
-import { CreateRoutine, CreateWorkout, Set, Workout } from '../interfaces/interfaces';
+import { Set, Workout } from '../interfaces/interfaces';
 export const baseURL = 'http://192.168.100.18:8080/api'
 
 type Body = 
     | {email: string,password: string,name?: string}
     | {idToken: string | null}
-    | CreateRoutine
-    | CreateWorkout
     | {sets: Set[]}
 
 interface Props {

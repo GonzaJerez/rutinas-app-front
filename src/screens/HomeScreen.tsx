@@ -1,20 +1,20 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { View, StyleSheet, FlatList,} from 'react-native'
+import { View, StyleSheet} from 'react-native'
 
-import { FloatButton } from '../components/FloatButton'
+import { FloatButton } from '../components/buttons/FloatButton'
 import { useNavigation } from '@react-navigation/native';
-import { CardRoutine } from '../components/CardRoutine'
-import { Title } from '../components/Title'
-import { GradientBackground } from '../components/GradientBackground';
+import { GradientBackground } from '../components/backgrounds/GradientBackground';
 import { RoutinesContext } from '../context/routines/RoutinesContext';
+import { ListHomeRoutines } from '../components/ListHomeRoutines';
 
 
 export const HomeScreen = () => {
 
     const {navigate} = useNavigation<any>()
     const {listRoutines, getRoutines, loadMore, clearActualRoutine} = useContext(RoutinesContext)
+    
 
-    const [editing, setEditing] = useState('')
+    // const [editing, setEditing] = useState('')
 
     useEffect(()=>{
         getRoutines();
@@ -30,21 +30,9 @@ export const HomeScreen = () => {
             <GradientBackground />
 
             <View style={styles.listRoutines}>
-                <FlatList
-                    ListHeaderComponent={()=>(
-                        <Title text='Mis rutinas'/>
-                    )}
-                    data={listRoutines}
-                    renderItem={({item})=>(
-                        <CardRoutine 
-                            routine={item}
-                            setEditing={setEditing}
-                            isEditing={editing}
-                        />
-                    )}
-                    keyExtractor={(item)=> item._id}
-                    onEndReached={loadMore}
-                    showsVerticalScrollIndicator={false}
+                <ListHomeRoutines 
+                    routines={listRoutines} 
+                    loadMore={loadMore}
                 />
             </View>
             
@@ -57,13 +45,11 @@ export const HomeScreen = () => {
 const styles = StyleSheet.create({
     routines:{
         flex: 1,
-        // backgroundColor: 'transparent',
-        paddingHorizontal: 20,
-        // paddingTop: 30,
+        alignItems:'center',
+        // paddingTop:30
     },
     listRoutines:{
-        marginTop: 30,
-        // alignItems: 'center',
-        // backgroundColor:'red'
+        // marginTop: 30,
+        // paddingHorizontal:30
     }
 });

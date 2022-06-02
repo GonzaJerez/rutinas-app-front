@@ -6,13 +6,16 @@ type ThemeAction =
     | { type: 'set_dark_theme' }
 
 export interface ThemeState extends Theme {
-    currentTheme: 'light' | 'dark',
-    dividerColor: string,
-    placeholderColor: string,
-    strongPrimary?: string,
-    lightPrimary: string,
+    currentTheme:       'light' | 'dark',
+    dividerColor:       string,
+    placeholderColor:   string,
+    strongPrimary?:     string,
+    light:              string;
+    lightPrimary:       string,
     backgroundTransparent:string,
-    errors: string
+    errors:             string,
+    disabledColor:      string;
+    grey:               string;
 }
 
 export const lightTheme: ThemeState = {
@@ -21,9 +24,12 @@ export const lightTheme: ThemeState = {
     dividerColor: 'rgba(0,0,0,0.2)',
     placeholderColor: '#ccc',
     strongPrimary: '#CA4B05',
-    lightPrimary: '#E88753',
+    light: '#ffab40',
+    lightPrimary: '#ff9100',
     errors: '#F52121',
     backgroundTransparent: 'rgba(255,255,255,0.5)',
+    disabledColor: '#bbb',
+    grey: '#888',
     colors: {
         primary: '#ff6d00',
         background: '#fff',
@@ -40,8 +46,11 @@ export const darkTheme: ThemeState = {
     dividerColor: 'rgba(255,255,255,0.5)',
     placeholderColor: '#8A8A8A',
     backgroundTransparent: '#ffffff90',
+    disabledColor: '#bbb',
+    light: '#ffab40',
     lightPrimary: '#E88753',
     errors: 'red',
+    grey: '#888',
     colors: {
         primary: '#F47C1B',
         background: '#090909',

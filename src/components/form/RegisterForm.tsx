@@ -4,7 +4,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup'
 
 import { BoxInput } from './BoxInput';
-import { ButtonSubmit } from './ButtonSubmit';
+import { ButtonSubmit } from '../buttons/ButtonSubmit';
 import { AuthContext } from '../../context/auth/AuthContext';
 
 export const RegisterForm = () => {
@@ -45,17 +45,17 @@ export const RegisterForm = () => {
                 ({handleSubmit}) => (
                     <View style={ styles.container }>
 
-                        <BoxInput name='name' label='Ingrese su nombre' placeholder='Martin Gonzalez' />
+                        <BoxInput name='name' label='Ingrese su nombre' placeholder='Martin Gonzalez' marginTop='smallMT'/>
 
-                        <BoxInput name='email' label='Ingrese su email' placeholder='email@gmail.com' />
+                        <BoxInput name='email' label='Ingrese su email' placeholder='email@gmail.com' marginTop='smallMT'/>
 
-                        <BoxInput name='email2' label='Confirme su email' placeholder='email@gmail.com' />
+                        <BoxInput name='email2' label='Confirme su email' placeholder='email@gmail.com' marginTop='smallMT'/>
 
-                        <BoxInput name='password' label='Ingrese su contraseña' placeholder='Contraseña' />
+                        <BoxInput name='password' label='Ingrese su contraseña' placeholder='••••••' pass marginTop='smallMT'/>
 
-                        <BoxInput name='password2' label='Confirme su contraseña' placeholder='Contraseña' />
+                        <BoxInput name='password2' label='Confirme su contraseña' placeholder='••••••' pass marginTop='smallMT'/>
 
-                        <ButtonSubmit text='Registrarme' onPress={handleSubmit} type='secondary' style={ { width: 145 } } />
+                        <ButtonSubmit text='Registrarme' onPress={handleSubmit} type='secondary' style={ { width: 145, marginTop:30 } } />
 
                     </View>
 

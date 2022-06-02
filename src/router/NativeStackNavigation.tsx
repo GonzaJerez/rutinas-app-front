@@ -6,6 +6,7 @@ import { ThemeContext } from '../context/theme/ThemeContext';
 import { AuthNavigator } from './AuthNavigator';
 import { PrivateNavigator } from './PrivateNavigator';
 import { AuthContext } from '../context/auth/AuthContext';
+import { IntroApp } from '../components/IntroApp';
 
 
 export type RootStackNavigation = {
@@ -19,7 +20,13 @@ export const NativeStackNavigation = () => {
 
     const { theme } = useContext( ThemeContext )
     // Agarrar token del asyncStorage
-    const {token} = useContext(AuthContext)
+    const {status} = useContext(AuthContext)
+
+    if (status === 'checking') {
+        return (
+            <IntroApp />
+        )
+    }
 
     return (
         <NavigationContainer
@@ -31,7 +38,7 @@ export const NativeStackNavigation = () => {
                 }}
             >
                 {
-                    (token)
+                    (status === 'authenticated')
                         ? <Stack.Screen name="PrivateNavigator" component={ PrivateNavigator } />
                         : <Stack.Screen name="AuthNavigator" component={ AuthNavigator } />
                 }

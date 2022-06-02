@@ -1,16 +1,19 @@
-import { UserResponse } from "../../interfaces/interfaces";
+import { User, UserResponse } from '../../interfaces/interfaces';
 
 export interface AuthState {
     status: 'authenticated' | 'checking' | 'not-authenticated',
-    user:   UserResponse | null,
+    user:   User | null,
     token:  string | null,
     errorMsg: string | null,
 }
 
 type AuthAuthentication =
-    | {type: 'login', payload: {token: string, user: UserResponse}}
+    | {type: 'login', payload: {token: string, user: User}}
     | {type: 'addError', payload: string}
-    | {type: 'googleSignIn', payload: {idToken:string}}
+    | {type: 'notAuthenticated'}
+    // | {type: 'googleSignIn', payload: {idToken:string}}
+    | {type: 'updateUser', payload:{user:User}}
+    | {type: 'logout'}
 
 
 export const initialState: AuthState = {
@@ -35,6 +38,18 @@ export const AuthReducer = (state:AuthState, action:AuthAuthentication):AuthStat
             return{
                 ...state,
                 errorMsg: action.payload,
+                user: null,
+                token: null,
+                status: 'not-authenticated'
+            }
+        case 'updateUser':
+            return {
+                ...state,
+                user: action.payload.user
+            }
+        case 'logout':
+            return {
+                ...state,
                 user: null,
                 token: null,
                 status: 'not-authenticated'

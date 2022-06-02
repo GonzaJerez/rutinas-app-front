@@ -5,7 +5,7 @@ export const useForm = <T extends Object>( initState: T ) => {
 
     const [ state, setState ] = useState( initState );
 
-    const onChange = ( value: string | Set[], field: keyof T ) => {
+    const onChange = ( value: string | Set[] | {uri:string}, field: keyof T ) => {
         
         setState( {
             ...state,

@@ -1,82 +1,66 @@
-import { useNavigation } from '@react-navigation/native';
-import { useContext, useEffect, useState } from 'react';
+import {useReducer} from 'react';
 import uuid from 'react-native-uuid';
-import { useForm } from '../hooks/useForm';
-import { AuthContext } from '../context/auth/AuthContext';
-import { RoutinesContext } from '../context/routines/RoutinesContext';
-import { Workout, WorkoutInRoutine, Set } from '../interfaces/interfaces';
+
+import { Workout, WorkoutInRoutine, Set, CombinedWorkout } from '../interfaces/interfaces';
+import { workoutInRoutinesReducer } from '../context/routines/WorkoutInRoutinesReducer';
 
 
-export const useWorkoutInRoutine = (workout:Workout, workoutInRoutine:WorkoutInRoutine)=>{
+export const useWorkoutInRoutine = (workout:Workout)=>{
 
-    const {actualRoutine} = useContext(RoutinesContext)
-    /**
-     * Crea el set por defecto vacío cuando ingresa por primera vez
-     */
-    const [ sets, setSets ] = useState<Set[]>( [ {
-        _id: uuid.v4().toString(),
-        numReps: '',
-        weight: ''
-    } ] )
-
-    /**
-     * Estado completo del workoutInRoutine
-     */
-    const { form, onChange, setFormValue } = useForm<WorkoutInRoutine>( {
-        // _id: uuid.v4().toString(),
-        tool: 'Dumbell',
-        workout: workout,
-        sets
-    } )
-
-    /**
-     * Función para controlar el cambio en los sets, actualiza estado de form y sets
-     */
-    const onChangeSet = ( value:string, id: string, field: string ) => {
-        const newSets = sets.map( set => set._id === id ? { ...set, [ field ]: value } : set )
-        setSets( newSets )
-        setFormValue({...form, sets: newSets})
+    const initialState:CombinedWorkout = {
+        combinedWorkouts: [{
+            _id: uuid.v4().toString(),
+            tool: 'Mancuerna',
+            workout,
+            sets: [{
+                _id: uuid.v4().toString(),
+                numReps: '',
+                weight: ''
+            }]
+        }],
+        // _id: uuid.v4().toString()
     }
 
-    /**
-     * Crear nuevo set con id provisional
-     */
-    const addSet = () => {
-        setSets( [ ...sets, {
-            _id: uuid.v4().toString(),
-            numReps: '',
-            weight: ''
-        } ] )
+    const [state, dispatch] = useReducer(workoutInRoutinesReducer, initialState)
+    
+
+    const setCombinedWorkouts = (combinedWorkouts:CombinedWorkout) =>{
+        dispatch({type:'setCombinedWorkouts', payload:{combinedWorkouts}})
     }
 
-    /**
-     * Cuando exista workoutInRoutine (o sea cuando se esté actualizando el ejercicio) 
-     * carga lo que ya tenga almacenado en DB
-     */
-    useEffect(()=>{
-        if (!workoutInRoutine?.sets) return;
 
-        // Primero carga los sets
-        setSets(workoutInRoutine.sets.map( set => ({
-            _id: uuid.v4().toString(),
-            numReps: set.numReps.toString(), 
-            weight: set.weight?.toString() || ''
-        })))
+    /* const addWorkout = (otherWorkout:Workout)=>{
+        dispatch({type:'addWorkout', payload:{workout:otherWorkout}})
+    } */
 
-        // Segundo carga esos sets en el estado completo del workout
-        setFormValue({
-            ...form,
-            tool: workoutInRoutine.tool,
-            workout: workoutInRoutine.workout,
-            sets
-        })
-    },[workoutInRoutine, actualRoutine])
+    const changeWorkout = (tool:string, idWorkout:string)=>{
+        dispatch({type:'changeWorkout', payload:{tool, idWorkout}})
+    }
+
+    const deleteWorkout = (idWorkout:string)=>{
+        dispatch({type:'deleteWorkout', payload:{idWorkout}})
+    }
+
+    const addSet = (idWorkout:string)=>{
+        dispatch({type:'addSet', payload:{idWorkout}})
+    }
+
+    const changeSet = (idWorkout:string, idSet:string, form:Set) => {
+        dispatch({type:'changeSet', payload:{idWorkout,idSet,form}})
+    }
+
+    const deleteSet = (idWorkout:string, idSet:string) => {
+        dispatch({type:'deleteSet', payload:{idWorkout, idSet}})
+    }
 
     return {
-        form,
-        sets,
-        onChange,
-        onChangeSet,
-        addSet
+        state,
+        setCombinedWorkouts,
+        // addWorkout,
+        changeWorkout,
+        deleteWorkout,
+        addSet,
+        changeSet,
+        deleteSet,
     }
 }

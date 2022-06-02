@@ -1,44 +1,59 @@
-import { Routine, RoutineCreateState } from "../../interfaces/interfaces"
+import { CombinedWorkout, Routine, RoutineCreateState, WorkoutInRoutine } from '../../interfaces/interfaces';
 import uuid from 'react-native-uuid';
 
 export interface StateProps {
     listRoutines:   Routine[];
     actualRoutine:  Routine | null;
+    actualCombinedWorkouts: CombinedWorkout | null;
     error:         string;
 }
 
 export const initialState:StateProps = {
     listRoutines: [],
     actualRoutine: null,
+    actualCombinedWorkouts: null,
     error: ''
 }
 
 type ActionsProps = 
-    | {type: 'setListRoutines',  payload: {routines:Routine[]}}
-    | {type: 'setActualRoutine', payload: {routine:Routine}}
-    | {type: 'updateRoutine',    payload: {routine:Routine}}
-    | {type: 'deleteRoutine',    payload: {idRoutine:string}}
-    | {type: 'setError',         payload:string}
+    | {type: 'addRoutinesToListRoutines',    payload: {routines:Routine[]}}
+    | {type: 'updateListRoutines', payload: {routine:Routine}}
+    | {type: 'setListRoutines',    payload: {routines:Routine[]}}
+    | {type: 'setActualRoutine',   payload: {routine:Routine}}
+    | {type: 'updateActualRoutine',payload: {idDay:string, combinedWorkouts:CombinedWorkout[]}}
+    | {type: 'updateRoutine',      payload: {routine:Routine}}
+    | {type: 'deleteRoutine',      payload: {idRoutine:string}}
+    | {type: 'setError',           payload:string}
     | {type: 'clearActualRoutine'}
-    // | {type: 'clearErrors'}
-    // | {type: 'addNewRoutine', payload: {routine:Routine}}
-    // | {type: 'updateListRoutines', payload: {routine:Routine}}
-    // | {type: 'addNewDayRoutine'}
-    // | {type: 'deleteDayRoutine', payload: {idDay:string}}
-    // | {type: 'addNewWorkoutInRoutine', payload: {idDay:string, form:WorkoutInRoutineState}}
-    // | {type: 'updateWorkoutInRoutine', payload: {idDay:string, idWorkoutInRoutine:string, form:WorkoutInRoutineState}}
-    // | {type: 'deleteWorkoutInRoutine', payload: {idDay:string, idWorkoutInRoutine:string}}
-
+    | {type: 'setActualCombinedWorkouts',   payload:{combinedWorkouts:CombinedWorkout}}
+    | {type: 'clearActualCombinedWorkouts'}
 
 
 export const RoutinesReducer = (state:StateProps, action:ActionsProps):StateProps =>{
 
     switch (action.type) {
-        case 'setListRoutines':
+        case 'addRoutinesToListRoutines':
             return {
                 ...state,
                 listRoutines: [...action.payload.routines, ...state.listRoutines ]
             }
+
+        /* case 'updateListRoutines':
+            return {
+                ...state,
+                listRoutines: state.listRoutines.map( routine => routine._id.toString() !== action.payload.routine._id.toString()
+                    ? routine
+                    : action.payload.routine    
+                )
+                .sort( (a,b) => a.modifyDate - b.modifyDate)
+            }
+
+        case 'setListRoutines':{
+            return {
+                ...state,
+                listRoutines: action.payload.routines
+            }
+        } */
 
         case 'setActualRoutine':
             return {
@@ -48,16 +63,30 @@ export const RoutinesReducer = (state:StateProps, action:ActionsProps):StateProp
                     ? routine
                     : action.payload.routine
                 )
+                .sort( (a,b) => b.modifyDate - a.modifyDate)
             }
+
+        case 'updateActualRoutine':
+            return {
+                ...state,
+                actualRoutine : {
+                    ...state.actualRoutine!,
+                    days: state.actualRoutine!.days.map( day => day._id.toString() !== action.payload.idDay 
+                        ? day
+                        : {...day, workouts:action.payload.combinedWorkouts}
+                    )
+                }
+            } 
 
         case 'updateRoutine':
             return {
                 ...state,
-                actualRoutine: null,
+                // actualRoutine: null,
                 listRoutines: state.listRoutines.map( routine => routine._id !== action.payload.routine._id 
                     ? routine
                     : action.payload.routine
                 )
+                .sort( (a,b) => b.modifyDate - a.modifyDate)
             }
 
         case 'deleteRoutine':
@@ -78,11 +107,17 @@ export const RoutinesReducer = (state:StateProps, action:ActionsProps):StateProp
                 error: action.payload
             }
 
-        /* case 'clearErrors':
+        case 'setActualCombinedWorkouts':
             return {
                 ...state,
-                error: ''
-            } */
+                actualCombinedWorkouts: action.payload.combinedWorkouts
+            }
+        
+        case 'clearActualCombinedWorkouts':
+            return {
+                ...state,
+                actualCombinedWorkouts: null
+            }
     
         default:
             return state;

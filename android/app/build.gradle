@@ -295,7 +295,9 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    
 }
+
 
 if (isNewArchitectureEnabled()) {
     // If new architecture is enabled, we let you build RN from source

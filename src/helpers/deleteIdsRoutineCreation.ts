@@ -1,8 +1,8 @@
-// import { RoutineState } from '../interfaces/interfaces';
+import { RoutineToCopy } from '../interfaces/interfaces';
 
-export const deleteIdsRoutineCreation = (/* routine:RoutineState */) => {
+export const deleteIdsRoutineCreation = (routine:RoutineToCopy) => {
 
-    /* // Si existen days entonces les saca el id a c/u y retorna el resto del day
+    // Si existen days entonces les saca el id a c/u y retorna el resto del day
     if (routine.days) {
         routine.days = routine.days.map( day => {
 
@@ -15,7 +15,7 @@ export const deleteIdsRoutineCreation = (/* routine:RoutineState */) => {
                         workout.sets = workout.sets.map( set => ({numReps:set.numReps, weight: set.weight}))
                     }
                     
-                    return {tool: workout.tool, workout:workout.workout, sets: workout.sets}
+                    return {tool: workout.tool, workout:workout._id || '', sets: workout.sets}
                 })
             }
 
@@ -23,6 +23,8 @@ export const deleteIdsRoutineCreation = (/* routine:RoutineState */) => {
         })
     }
 
-    return routine; */
+    // delete routine._id
+
+    return routine;
     
 }

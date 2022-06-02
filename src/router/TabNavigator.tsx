@@ -1,16 +1,20 @@
 import React, { useContext } from 'react';
 import { HomeScreen } from '../screens/HomeScreen';
-import { Account } from "../screens/Account";
+import { AccountScreen } from "../screens/AccountScreen";
 import Icon from "react-native-vector-icons/Ionicons";
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import { ThemeContext } from '../context/theme/ThemeContext';
 import { View } from 'react-native';
+import { AccountNavigator } from './AccountNavigator';
+import { RoutinesNavigator } from './RoutinesNavigator';
+import { MovementsNavigator } from './MovementsNavigator';
 
 
 
 export type RootTabNavigator = {
-    HomeScreen: undefined,
-    Account: undefined
+    RoutinesNavigator:  undefined;
+    AccountNavigator:   undefined;
+    MovementsNavigator: undefined;
 }
 
 
@@ -26,24 +30,31 @@ export const TabNavigator = () => {
             activeColor={ theme.colors.primary }
             sceneAnimationEnabled={ true }
             
+            
+            
             screenOptions={ ( { route } ) => ( {
                 tabBarIcon: ( { color, focused } ) => {
                     let iconName: string = '';
 
                     switch ( route.name ) {
-                        case 'HomeScreen':
+                        case 'RoutinesNavigator':
                             iconName = 'barbell-outline'
                             break;
 
-                        case 'Account':
+                        case 'MovementsNavigator':
+                            iconName = 'people-outline'
+                            break;
+
+                        case 'AccountNavigator':
                             iconName = 'person-circle-outline'
                             break;
+
                         default:
                             break;
                     }
 
                     return (
-                        <View style={{height:40, width: 40, transform:[{rotate: route.name === 'HomeScreen' ? '45deg': '0deg'}]}}>
+                        <View style={{height:40, width: 40, transform:[{rotate: route.name === 'RoutinesNavigator' ? '45deg': '0deg'}]}}>
                             <Icon name={ iconName } size={ 35 } color={ focused ? color : '#aaa' } />
                         </View>
                     )
@@ -51,9 +62,9 @@ export const TabNavigator = () => {
             } ) }
             labeled={ false }
         >
-            <Tab.Screen name="HomeScreen" component={ HomeScreen } />
-
-            <Tab.Screen name="Account" component={ Account } />
+            <Tab.Screen name="RoutinesNavigator" component={ RoutinesNavigator } />
+            <Tab.Screen name="MovementsNavigator" component={ MovementsNavigator } />
+            <Tab.Screen name="AccountNavigator" component={ AccountNavigator } />
         </Tab.Navigator>
 
 

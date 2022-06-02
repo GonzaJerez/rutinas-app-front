@@ -11,7 +11,7 @@ import {
 
 import { ThemeContext } from '../../context/theme/ThemeContext'
 import { BoxInput } from './BoxInput'
-import { ButtonSubmit } from './ButtonSubmit'
+import { ButtonSubmit } from '../buttons/ButtonSubmit'
 import { routinesApi } from '../../api/routinesApi'
 import { AuthContext } from '../../context/auth/AuthContext'
 
@@ -28,16 +28,15 @@ export const LoginForm = () => {
         });
     },[])
     
-    const signIn = async () => {
+    const signInWithGoogle = async () => {
         try {
             await GoogleSignin.hasPlayServices();
             const {idToken} = await GoogleSignin.signIn();
 
             if (idToken) {
-                googleSignIn({idToken})
+                googleSignIn(idToken)
             }
 
-          
         } catch (error: any) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {
             // user cancelled the login flow
@@ -61,10 +60,8 @@ export const LoginForm = () => {
                 email: '',
                 password: ''
             }}
-            onSubmit={ async(values) => {
-                
+            onSubmit={ async(values) => { 
                 login(values)
-                
             }}
             validationSchema={ Yup.object({
                 email: Yup.string()
@@ -80,9 +77,9 @@ export const LoginForm = () => {
 
                     <View style={ styles.container }>
 
-                        <BoxInput label='Ingrese su email' name='email' placeholder='email@gmail.com' />
+                        <BoxInput label='Ingrese su email' name='email' placeholder='email@gmail.com' marginTop='mediumMT' />
 
-                        <BoxInput label='Ingrese su contraseña' name='password' placeholder='Contraseña' />
+                        <BoxInput label='Ingrese su contraseña' name='password' placeholder='••••••' pass marginTop='mediumMT' />
 
                         {
                             (errorMsg !== '') && 
@@ -90,7 +87,11 @@ export const LoginForm = () => {
                                     <Text style={{color:'red', fontSize: 16}}>{errorMsg}</Text>
                                 </View>
                         }
-                        <ButtonSubmit text='Ingresar' onPress={handleSubmit} />
+                        <ButtonSubmit 
+                            text='Ingresar' 
+                            onPress={handleSubmit} 
+                            style={{marginTop:50}}
+                        />
 
                         <View style={ { marginTop: '10%' } }>
                             <TouchableOpacity>
@@ -101,7 +102,7 @@ export const LoginForm = () => {
                         <View style={ { ...styles.separator, borderColor: theme.dividerColor } } />
 
                         <View style={ { alignItems: 'center' } }>
-                            <TouchableOpacity style={ styles.googleButton } onPress={signIn}>
+                            <TouchableOpacity style={ styles.googleButton } onPress={signInWithGoogle}>
                                 <View style={ styles.googleTextContainer }>
                                     <Text style={ { fontSize: 16, color: colors.background } }>Ingresar con Google</Text>
                                 </View>
@@ -125,7 +126,8 @@ const styles = StyleSheet.create( {
     container: {
         flex: 1,
         justifyContent: 'center',
-        paddingHorizontal: 10,
+        // backgroundColor:'red'
+        // paddingHorizontal: 10,
     },
     separator: {
         borderBottomWidth: 1,
@@ -138,6 +140,15 @@ const styles = StyleSheet.create( {
         height: 40,
         marginBottom: '10%',
         width: 250,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
     },
     googleTextContainer: {
         alignItems: 'center',

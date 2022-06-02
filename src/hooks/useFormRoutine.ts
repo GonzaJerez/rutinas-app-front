@@ -1,5 +1,5 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack"
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useState } from "react"
 import { RoutinesContext } from "../context/routines/RoutinesContext"
 import { RoutineCreateState } from "../interfaces/interfaces"
 import { RootPrivateNavigator } from "../router/PrivateNavigator"
@@ -17,27 +17,45 @@ export const useFormRoutine = (navigation: NativeStackNavigationProp<RootPrivate
 
     // Formulario con valores por defecto cuando se crea una nueva rutina
     const { form, onChange, setFormValue } = useForm<RoutineCreateState>( {
-        name: '',
-        typeUnit: 'kg',
-        img: imgsRoutines[0]
+        name: actualRoutine?.name || '',
+        typeUnit: actualRoutine?.typeUnit || 'kg',
+        img: actualRoutine?.img || imgsRoutines[0],
+        timer: actualRoutine?.timer || 60000,
+        _id: actualRoutine?._id || undefined
     } )
+
+    /**
+     * Maneja el estado local del temporizador, para despues poder convertirlo facilmente a milisegundos
+     * y pasarselo al form que maneja el estado de toda la pantalla
+     */
+    const [timer, setTimer] = useState({
+        minutes: new Date(form.timer).getMinutes(),
+        seconds: new Date(form.timer).getSeconds()
+    })
 
 
     // Para que cuando terminen de cargar imgsRoutines ponga en el estado la primera img por defecto y no quede undefined
     useEffect(()=>{
         onChange(imgsRoutines[0], 'img')
     },[imgsRoutines])
+    
 
-
-    // Cuando carga la rutina actual actualiza todos los valores del form
-    useEffect(()=>{
-        if (!actualRoutine) return;
-        setFormValue({
-            name: actualRoutine.name,
-            typeUnit: actualRoutine.typeUnit,
-            img: actualRoutine.img || imgsRoutines[0]
+    /**
+     * Cambia el estado local de los minutos y segundos
+     */
+    const onChangeTimer = (value:string, field:'minutes'|'seconds')=>{
+        setTimer({
+            ...timer,
+            [field]:Number(value)
         })
-    }, [actualRoutine])
+    }
+
+    /**
+     * Cambia el timer en el form que maneja todo el estado de la pantalla cuando cambie el timer local
+     */
+    useEffect(()=>{
+        onChange(((Math.round(timer.minutes * 60000 / 1000) + Math.round(timer.seconds)) * 1000).toString(), 'timer')
+    },[timer])
     
 
     /**
@@ -53,9 +71,7 @@ export const useFormRoutine = (navigation: NativeStackNavigationProp<RootPrivate
         if (actualRoutine) {
             const resp = await updateRoutine(actualRoutine._id, form)
             if (!resp) {
-                clearActualRoutine();
-                navigation.goBack();
-                setError('')
+                onGetOut()
             } else {
                 setError(resp.msg)
             }
@@ -71,11 +87,22 @@ export const useFormRoutine = (navigation: NativeStackNavigationProp<RootPrivate
         }
     }
 
+
+    const onGetOut = ()=>{
+        clearActualRoutine();
+        navigation.goBack();
+        setError('')
+    }
+
     return {
         form,
         imgsRoutines,
         error,
+        actualRoutine,
+        timer,
+        onChangeTimer,
         onChange,
-        onSubmit
+        onSubmit,
+        onGetOut
     }
 }

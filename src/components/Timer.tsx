@@ -1,5 +1,6 @@
+import React, { useContext } from 'react'
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+
 import { ThemeContext } from '../context/theme/ThemeContext'
 import { useTimer } from '../hooks/useTimer';
 
@@ -14,24 +15,22 @@ export const Timer = ({shadow, setIsTimerFinished}:Props) => {
     const {colors} = theme;
 
     const {
-        miliseconds,
-        seconds,
-        minutes,
+        time,
         isPaused,
         onPause,
         onPlay,
-        onRestart
+        onRestart,
     } = useTimer(setIsTimerFinished)
+
 
 
   return (
     <View style={styles.container}>
       <View style={styles.timerContainer}>
-        <Text style={{...styles.numbersTimer, color:colors.text}}>{minutes.toString().padStart(2,'0')}</Text>
-        <Text style={{...styles.numbersTimer, color:colors.text}}>:</Text>
-        <Text style={{...styles.numbersTimer, color:colors.text}}>{seconds.toString().padStart(2,'0')}</Text>
-        <Text style={{...styles.numbersTimer, color:colors.text}}>:</Text>
-        <Text style={{...styles.numbersTimer, color:colors.text}}>{miliseconds.toString().padStart(2,'0')}</Text>
+            <Text style={{...styles.numbersTimer, color:theme.colors.text}}>
+                {/* Vista del temporizador */}
+                {`${(time?.minutes).toString().padStart(2,'0')}:${(time?.seconds).toString().padStart(2,'0')}`}
+            </Text>
       </View>
 
       <View style={styles.buttonsContainer}>
@@ -39,11 +38,11 @@ export const Timer = ({shadow, setIsTimerFinished}:Props) => {
             style={{...styles.buttons, backgroundColor:theme.lightPrimary, elevation:(shadow) ? 7 : 0}}
             onPress={(!isPaused) ? onPause : onPlay}
         >
-            <Text style={{color:colors.background}}>{(!isPaused) ? 'Pausa' : 'Iniciar'}</Text>
+            <Text style={{color:colors.text}}>{(!isPaused) ? 'Pausa' : 'Iniciar'}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-            style={{...styles.buttons, backgroundColor:colors.background, elevation:(shadow) ? 7 : 0}}
+            style={{...styles.buttons, backgroundColor:colors.card, elevation:(shadow) ? 7 : 0}}
             onPress={onRestart}
         >
             <Text style={{color:colors.primary}}>Reiniciar</Text>

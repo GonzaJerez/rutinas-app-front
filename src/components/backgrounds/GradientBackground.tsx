@@ -10,10 +10,14 @@ export const GradientBackground = () => {
 
     return (
         <LinearGradient
-            colors={ [ colors.primary, theme.lightPrimary, colors.background ] }
+            // colors={ [ colors.primary, theme.lightPrimary, colors.background ] }
+            colors={ (theme.currentTheme === 'light') 
+                ? [ colors.primary, theme.lightPrimary, colors.background ]
+                : [colors.background,colors.background]
+            }
             style={ { ...StyleSheet.absoluteFillObject } }
-            start={ { x: -0.5, y: 0 } }
-            end={ { x: 1, y: 1.3 } }
+            start={ { x: -1.5, y: -1 } }
+            end={ { x: 1, y: 1 } }
         />
     )
 }

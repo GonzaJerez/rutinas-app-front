@@ -9,7 +9,8 @@ interface Props {
 
 export const FloatButton = ({onPress}:Props) => {
 
-    const {theme:{colors}} = useContext(ThemeContext)
+    const {theme} = useContext(ThemeContext)
+    const {colors} = theme;
 
     return (
         <TouchableOpacity
@@ -22,7 +23,7 @@ export const FloatButton = ({onPress}:Props) => {
             <Icon
                 name='add-outline'
                 size={ 40 }
-                color={colors.background}
+                color={theme.whiteColor}
                 style={styles.icon}
             />
         </TouchableOpacity>
@@ -47,10 +48,10 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.29,
         shadowRadius: 4.65,
 
-        elevation: 7,
+        elevation: 5,
     },
     icon:{
-        right:-2,
+        right:-1,
         // bottom: -1
     }
 });

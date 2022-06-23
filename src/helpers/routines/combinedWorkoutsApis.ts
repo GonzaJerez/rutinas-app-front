@@ -29,17 +29,16 @@ export interface DeleteCombinedWorkoutProps {
 
 
 export const createCombinedWorkoutsApi = async({idRoutine,idDay,body,token}:CreateCombinedWorkoutProps)=>{
-    
     const resp = await routinesApi({
         endpoint:`/routines/${idRoutine}/${idDay}`,
         method: 'POST',
-        body: {
+        body, /* {
             combinedWorkouts: body.combinedWorkouts.map( workout => ({
                 tool: workout.tool,
                 workout: workout.workout,
                 sets: workout.sets.map( set => ({weight: set.weight, numReps: set.numReps})),
             }))
-        },
+        }, */
         token
     })
 
@@ -50,13 +49,7 @@ export const updateCombinedWorkoutsApi = async({idRoutine,idDay,idCombinedWorkou
     const resp = await routinesApi({
         endpoint:`/routines/${idRoutine}/${idDay}/${idCombinedWorkouts}`,
         method: 'PUT',
-        body: {
-            combinedWorkouts: body.combinedWorkouts.map( workout => ({
-                tool: workout.tool,
-                workout: workout.workout,
-                sets: workout.sets.map( set => ({weight: set.weight, numReps: set.numReps})),
-            }))
-        },
+        body,
         token
     })
 

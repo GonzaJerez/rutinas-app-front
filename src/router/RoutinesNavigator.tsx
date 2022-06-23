@@ -1,50 +1,48 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { useContext } from "react";
+
 import { ThemeContext } from "../context/theme/ThemeContext";
-import { EditProfile } from "../screens/account/EditProfile";
-import { AccountScreen } from '../screens/AccountScreen';
-import { EditEmail } from '../screens/account/EditEmail';
-import { EditPassword } from '../screens/account/EditPassword';
 import { Day } from '../interfaces/interfaces';
 import { RoutineScreen } from '../screens/routines/RoutineScreen';
-import { WorkoutsInRoutineScreen } from '../screens/routines/WorkoutsInRoutineScreen';
 import { HomeScreen } from '../screens/HomeScreen';
+import { DayRoutineScreen } from '../screens/routines/DayRoutineScreen';
+import { DefaultRoutines } from '../screens/routines/DefaultRoutines';
 
 
 export type RootRoutinesNavigator = {
     HomeScreen:              undefined;
-    RoutineScreen:           { idRoutine: string },
-    WorkoutsInRoutineScreen: {actualDay: Day, numDay: number},
+    RoutineScreen:           { routineCreatorIsActualUser: boolean },
+    DayRoutineScreen:        {numDay:number, day:Day, typeUnit: 'kg' | 'lb', timer:number, isMovement?:boolean}
+    DefaultRoutines:         undefined;
 }
 
 const Stack = createNativeStackNavigator<RootRoutinesNavigator>();
 
 export const RoutinesNavigator = () => {
 
-    const { theme: { colors } } = useContext( ThemeContext )
+    const { theme } = useContext( ThemeContext )
+    const {colors} = theme;
 
     return (
         <Stack.Navigator
             screenOptions={ {
-                // headerShown: false,
                 headerTitleStyle: {
-                    color: colors.background,
-                    fontSize: 23,
-                    fontFamily: 'Roboto'
+                    fontSize: 21,
+                    // fontFamily:'Roboto'
                 },
                 headerStyle: {
-                    backgroundColor: colors.primary,
-                    
+                    backgroundColor: (theme.currentTheme === 'dark') ? theme.colors.background : theme.colors.primary,
                 },
-                headerShadowVisible:false,
-                // headerTransparent:true
+                // headerShadowVisible:false,
+                headerTitleAlign:'center',
+                headerTintColor:theme.whiteColor
             } }
 
         >
-            <Stack.Screen name="HomeScreen" component={ HomeScreen } options={{title:'Rutinas app'}}/>
+            <Stack.Screen name="HomeScreen" component={ HomeScreen } options={{title:''}}/>
             <Stack.Screen name="RoutineScreen" component={ RoutineScreen } />
-            <Stack.Screen name="WorkoutsInRoutineScreen" component={ WorkoutsInRoutineScreen } />
+            <Stack.Screen name="DayRoutineScreen" component={ DayRoutineScreen } />
+            <Stack.Screen name="DefaultRoutines" component={ DefaultRoutines } />
         </Stack.Navigator>
     )
 }

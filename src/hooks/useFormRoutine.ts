@@ -38,6 +38,12 @@ export const useFormRoutine = (navigation: NativeStackNavigationProp<RootPrivate
     useEffect(()=>{
         onChange(imgsRoutines[0], 'img')
     },[imgsRoutines])
+
+    useEffect(()=>{
+        return ()=>{
+            setError('')
+        }
+    },[])
     
 
     /**
@@ -79,7 +85,7 @@ export const useFormRoutine = (navigation: NativeStackNavigationProp<RootPrivate
         else {
             const resp = await createRoutine(form)  
             if(!resp){
-                navigation.replace('ChooseMuscleScreen')
+                navigation.replace('ChooseMuscleScreen',{})
                 setError('')
             } else {
                 setError(resp.msg)

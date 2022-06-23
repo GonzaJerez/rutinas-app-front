@@ -5,19 +5,22 @@ import { ThemeContext } from '../../context/theme/ThemeContext';
 interface Props {
     text:    string;
     style?:  StyleProp<ViewStyle>;
+    disabled?: boolean;
     onPress: ((event: GestureResponderEvent) => void) | undefined;
 }
 
-export const SecondaryButton = ({text, style, onPress}:Props) => {
+export const SecondaryButton = ({text, style,disabled=false, onPress}:Props) => {
 
-    const {theme:{colors}} = useContext(ThemeContext)
+    const {theme} = useContext(ThemeContext)
+    const {colors} = theme;
 
     return (
         <TouchableOpacity
             style={ { ...styles.secondaryButton, ...style as any } }
             onPress={onPress}
+            disabled={disabled}
         >
-            <Text style={ { ...styles.textButton, color: colors.primary } }>{text}</Text>
+            <Text style={ { ...styles.textButton, color: (disabled) ? theme.colors.background : colors.primary } }>{text}</Text>
         </TouchableOpacity>
     )
 }
@@ -29,6 +32,6 @@ const styles = StyleSheet.create({
         alignItems:'center'
     },
     textButton:{
-        fontSize: 18
+        fontSize: 16
     }
 });

@@ -1,7 +1,7 @@
 import { routinesApi } from "../api/routinesApi";
 
 export interface SearchProps {
-    collection: 'Users'|'Movements';
+    collection: 'UsersAndGroups'|'Movements';
     word:        string;
     token:       string;
 }

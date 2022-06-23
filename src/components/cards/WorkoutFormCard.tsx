@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, TouchableWithoutFeedback } from 'react-native'
 import React, { useContext, useState } from 'react'
-import { CombinedWorkout, Set, WorkoutInRoutine } from '../../interfaces/interfaces'
+import { CombinedWorkout, modeTraining, Set, WorkoutInRoutine } from '../../interfaces/interfaces'
 import { ThemeContext } from '../../context/theme/ThemeContext'
 import { Picker } from '@react-native-picker/picker'
 import { SecondaryButton } from '../buttons/SecondaryButton'
@@ -9,6 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons'
 import { SetsRow } from '../SetsRow'
 import { FloatDeleteIcon } from '../buttons/FloatDeleteIcon'
+import { baseURL } from '../../api/routinesApi'
+import { InfoModeTraining } from '../modals/InfoModeTraining'
 
 interface Props {
     item: WorkoutInRoutine;
@@ -41,6 +43,8 @@ export const WorkoutFormCard = ({
     const {theme} = useContext(ThemeContext)
     const {colors} = theme;
 
+    const [isOpenModalInfo, setIsOpenModalInfo] = useState(false);
+
     const {setActualCombinedWorkouts,actualRoutine} = useContext(RoutinesContext)
 
     /**
@@ -50,18 +54,29 @@ export const WorkoutFormCard = ({
      */
     const addOtherWorkout = ()=>{
         setActualCombinedWorkouts(state)
-        navigate('ChooseMuscleScreen')
+        navigate('ChooseMuscleScreen',{isCombiningWorkout:true})
     }
 
     return(
         <View style={styles.container}>
+            {(isOpenModalInfo) && (
+                <InfoModeTraining 
+                    isOpenModalInfo={isOpenModalInfo}
+                    setIsOpenModalInfo={setIsOpenModalInfo}
+                />
+            )}
             <TouchableOpacity
-                activeOpacity={0.80}
+                activeOpacity={0.95}
                 onLongPress={()=> setIsEditing(true)}
-                style={{...styles.workoutContainer, backgroundColor:colors.background}}
+                style={{...styles.workoutContainer, backgroundColor:colors.card}}
             >
                 <View style={ styles.imageContainer }>
-                    <Text>Imagen de ejercicio</Text>
+                    <Image 
+                        source={ { uri: `${baseURL}/api/routinesImages/workouts/${item.workout.img}` } }
+                        style={styles.image}
+                        blurRadius={1}
+                    />
+                    <View style={styles.darkBackground}/>
                     <Text style={ styles.title }>{item.workout.name}</Text>
                     {(isEditing) && (
                         <FloatDeleteIcon 
@@ -72,24 +87,51 @@ export const WorkoutFormCard = ({
                 </View>
                 <View style={ styles.formContainer }>
 
-                    <View style={ styles.toolContainer }>
-                        <Text style={ styles.textLabel }>Tipo de herramienta:</Text>
+                    <View style={ styles.pickerContainer }>
+                        <Text style={ {...styles.textLabel, color:theme.lightText} }>Herramienta:</Text>
                         {/* Picker */ }
                         <Picker
                             selectedValue={ item.tool }
                             onValueChange={ ( value ) => changeWorkout( value, item._id ) }
-                            style={ { width: 160 } }
+                            style={ { width: 170, color:colors.text } }
+                            dropdownIconColor={theme.lightText}
+                            
                         >
-                            <Picker.Item label="Mancuerna" value="Mancuerna" />
-                            <Picker.Item label="Barra" value="Barra" />
-                            <Picker.Item label="Polea" value="Polea" />
-                            <Picker.Item label="Libre" value="Libre" />
-                            <Picker.Item label="Maquina" value="Maquina" />
-                            <Picker.Item label="Elástico" value="Elástico" />
+                            {(item.workout.validTools.map( tool => (
+                                <Picker.Item key={tool} label={tool} value={tool} />
+                            )))}
                         </Picker>
                     </View>
+                    {(!item.tool.startsWith('Barra')) && (
+                        <View style={ styles.pickerContainer }>
+                            <TouchableWithoutFeedback
+                                onPress={()=>setIsOpenModalInfo(true)}
+                            >
+                                <View style={{flexDirection:'row', alignItems:'flex-end'}}>
+                                    <Text style={ {...styles.textLabel, color:theme.lightText} }>Modo: </Text>
+                                    <Icon 
+                                        name='information-circle-outline'
+                                        size={16}
+                                        color={theme.lightText}
+                                    />
+                                </View>
+                            </TouchableWithoutFeedback>
+                            {/* Picker */ }
+                            <Picker
+                                selectedValue={ item.tool }
+                                onValueChange={ ( value ) => changeWorkout( value, item._id ) }
+                                style={ { width: 170, color:colors.text } }
+                                dropdownIconColor={theme.lightText}
+                            >
+                                {(modeTraining.map( mode => (
+                                    <Picker.Item key={mode} label={mode} value={mode} />
+                                )))}
+                            </Picker>
+                        </View>
+                    )}
 
-                    <Text style={ styles.subtitle }>Series</Text>
+
+                    <Text style={ {...styles.subtitle, color:colors.text} }>Series</Text>
 
                     <View style={ styles.containerSets }>
                         {
@@ -117,7 +159,7 @@ export const WorkoutFormCard = ({
                         onPress={addOtherWorkout}
                         style={{...styles.addWorkoutButton, backgroundColor:theme.lightPrimary}}
                     >
-                        <Text style={{color:colors.background}}>Combinar con otro ejercicio</Text>
+                        <Text style={{color:colors.text}}>Combinar con otro ejercicio</Text>
                     </TouchableOpacity>
                 )
             }
@@ -128,16 +170,14 @@ export const WorkoutFormCard = ({
 
 const styles = StyleSheet.create( {
     container:{
-        alignItems:'center', 
-        // justifyContent:'center'
-        // marginTop:-20
+        alignItems:'center',
+        // minHeight:780
+        flex:1
     },
     workoutContainer:{
-        marginTop: 40,
-        width: 380,
+        marginTop: 10,
+        width: 350,
         borderRadius:25,
-        overflow:'hidden',
-        borderWidth:1,
         borderColor:'#ddd',
         shadowColor: "#000",
         shadowOffset: {
@@ -150,10 +190,34 @@ const styles = StyleSheet.create( {
         elevation: 7,
     },
     imageContainer: {
-        height: 170,
+        height: 180,
+        overflow:'hidden',
+        left:'-1%',
+        width:'102%',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#ccc'
+        backgroundColor: '#ccc',
+        borderRadius:25,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
+    },
+    image:{
+        position:'absolute', 
+        width:'100%', 
+        height:'100%',
+        resizeMode:'cover',
+    },
+    darkBackground:{
+        ...StyleSheet.absoluteFillObject,
+        position:'absolute', 
+        backgroundColor:'#00000099'
     },
     formContainer: {
         paddingHorizontal: 25,
@@ -163,7 +227,7 @@ const styles = StyleSheet.create( {
         fontSize: 25,
         color:'#eee'
     },
-    toolContainer: {
+    pickerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center'
@@ -177,7 +241,7 @@ const styles = StyleSheet.create( {
         marginTop: 20
     },
     textLabel: {
-        fontSize: 18,
+        fontSize: 16,
     },
     addWorkoutButton:{
         height:40,
@@ -186,7 +250,7 @@ const styles = StyleSheet.create( {
         justifyContent:'center',
         paddingHorizontal:20,
         borderRadius:20,
-        // marginBottom:50
-        marginVertical:40
+        // marginBottom:50,
+        marginVertical:30,
     },
 } );

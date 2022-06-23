@@ -10,29 +10,27 @@ import { ModalSendRoutine } from '../ModalSendRoutine';
 
 interface Props {
     routine: Routine;
-    moveTopAnimation: () => void
+    // moveTopAnimation: () => void
 }
 
 
-export const LeftSwipe = ({routine, moveTopAnimation}:Props) => {
+export const LeftSwipe = ({routine}:Props) => {
 
     const {theme} = useContext(ThemeContext)
     const {colors} = theme;
-    const {setActualRoutine, createCopyRoutine, clearActualRoutine} = useContext(RoutinesContext)
+    const {setActualRoutine, createCopyRoutine} = useContext(RoutinesContext)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
     const {navigate} = useNavigation<any>()
 
     const toEditRoutine = ()=>{
-        // clearActualRoutine()
-        // setEditing('')
         setActualRoutine(routine)
         navigate('FormRoutineScreen')
     }
 
     const toCreateCopyRoutine = ()=>{
         createCopyRoutine(routine._id);
-        moveTopAnimation();
+        // moveTopAnimation();
     }
 
     return (
@@ -41,8 +39,8 @@ export const LeftSwipe = ({routine, moveTopAnimation}:Props) => {
                 style={{...styles.buttons, ...styles.firstButton, backgroundColor:theme.light}}
                 onPress={toEditRoutine}
             >
-                <Icon name='color-wand-outline' size={30} color={colors.text}/>
-                <Text style={{...styles.buttonsText, color:colors.text}}>Editar</Text>
+                <Icon name='color-wand-outline' size={28} color={colors.text}/>
+                <Text style={{color:colors.text}}>Editar</Text>
             </TouchableOpacity>
 
 
@@ -50,16 +48,16 @@ export const LeftSwipe = ({routine, moveTopAnimation}:Props) => {
                 style={{...styles.buttons, backgroundColor:theme.lightPrimary}}
                 onPress={toCreateCopyRoutine}
             >
-                <Icon name='copy-outline' size={30} color={colors.text}/>
-                <Text style={{...styles.buttonsText, color:colors.text}}>Crear copia</Text>
+                <Icon name='copy-outline' size={28} color={colors.text}/>
+                <Text style={{color:colors.text}}>Crear copia</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
                 style={{...styles.buttons, ...styles.lastButton, backgroundColor:colors.primary}}
                 onPress={()=>setIsModalOpen(true)}
             >
-                <Icon name='share-outline' size={30} color={colors.text}/>
-                <Text style={{...styles.buttonsText, color:colors.text}}>Enviar</Text>
+                <Icon name='share-outline' size={28} color={colors.text}/>
+                <Text style={{color:colors.text}}>Enviar</Text>
             </TouchableOpacity>
 
             <ModalSendRoutine 
@@ -76,9 +74,9 @@ const styles = StyleSheet.create( {
     container: {
         width: 220,
         flexDirection:'row',
-        height:180,
         opacity: 0.85,
-        marginLeft:20
+        marginLeft:20,
+        marginBottom:15
     },
     buttons: {
         padding: 5,
@@ -93,8 +91,5 @@ const styles = StyleSheet.create( {
     lastButton:{
         width:110, 
         paddingRight:30
-    },
-    buttonsText: {
-        fontSize: 16,
     },
 } );

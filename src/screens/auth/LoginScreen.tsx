@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, KeyboardAvoidingView, Platform, Image } from 'react-native'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { ThemeContext } from '../../context/theme/ThemeContext'
@@ -7,39 +7,48 @@ import { Decoration } from '../../components/backgrounds/Decoration'
 import { LoginForm } from '../../components/form/LoginForm'
 import { NameApp } from '../../components/headers/NameApp'
 import { RootAuthNavigator } from '../../router/AuthNavigator'
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { LogoApp } from '../../components/LogoApp'
 
-
-const windowHeight = Dimensions.get( 'window' ).height
 
 interface Props extends NativeStackScreenProps<RootAuthNavigator, 'LoginScreen'>{}
 
 export const LoginScreen = ({navigation}:Props) => {
 
-    const { theme: { colors } } = useContext( ThemeContext )
+    const { theme } = useContext( ThemeContext )
+    const {colors} = theme;
 
     return (
-        <View style={ { ...styles.container, backgroundColor: colors.background } }>
+        <SafeAreaView style={ { ...styles.container, backgroundColor: colors.background } }>
             <Decoration bgColor={colors.primary} />
+            
+            <KeyboardAvoidingView
+                behavior={(Platform.OS === 'ios') ? 'padding' : 'height'}
+            >
+                <ScrollView>
+                    <NameApp size='big' style={styles.title}/>
 
-            <ScrollView>
-                <NameApp size='big' style={styles.title}/>
+                    <View style={ styles.loginContainer }>
+                        <View style={ styles.loginBox }>
+                            <LoginForm />
+                        </View>
 
-                <View style={ styles.loginContainer }>
-                    <View style={ styles.loginBox }>
-                        <LoginForm />
                     </View>
-
-                </View>
-            </ScrollView>
+                
+                </ScrollView>
+            </KeyboardAvoidingView>
 
             <View style={ styles.registerContainer }>
                 <TouchableOpacity
                     onPress={()=> navigation.navigate('RegisterScreen') }
                 >
-                    <Text style={ { color: colors.background, fontSize: 16 } }>Registrarme</Text>
+                    <Text style={ { color: theme.whiteColor } }>Registrarme</Text>
                 </TouchableOpacity>
             </View>
-        </View>
+
+            <LogoApp style={{position:'absolute', bottom:20}}/>
+            
+        </SafeAreaView>
     )
 }
 
@@ -56,7 +65,7 @@ const styles = StyleSheet.create( {
         alignItems: 'center',
         // flex: 3,
         justifyContent: 'center',
-        marginTop: 40,
+        marginTop: 30,
     },
     loginBox: {
         flex: 1,
@@ -64,11 +73,8 @@ const styles = StyleSheet.create( {
     
     registerContainer: {
         alignItems: 'center',
-        // bottom: 40,
-        top: windowHeight - 80,
-        // flex: 2,
+        bottom: 50,
         justifyContent: 'center',
-        // left: 100,
         position: 'absolute',
         right: 20,
     }

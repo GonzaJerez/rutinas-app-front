@@ -71,6 +71,9 @@ export const useTraining = (workouts:CombinedWorkout[], idDay:string)=>{
         goBack();
     }
 
+    /**
+     * Cambia entre componentes de vista del ejercicio y el descanso
+     */
     const changeStatusBreak = ({back}:{back?:boolean})=>{
         setShadow(false)
         Animated.timing(

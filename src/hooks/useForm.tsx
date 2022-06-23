@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { Asset } from 'react-native-image-picker';
 import { Set } from '../interfaces/interfaces';
 
 export const useForm = <T extends Object>( initState: T ) => {
 
     const [ state, setState ] = useState( initState );
 
-    const onChange = ( value: string | Set[] | {uri:string}, field: keyof T ) => {
+    const onChange = ( value: string | Set[] | Asset, field: keyof T ) => {
         
         setState( {
             ...state,

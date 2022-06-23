@@ -1,29 +1,37 @@
 import React, { useContext, useEffect, useRef } from "react";
-import { Dimensions, View, FlatList, Text, Alert, StyleSheet, Animated } from 'react-native';
+import { Dimensions, View, FlatList, Text, Alert, StyleSheet, Animated, ActivityIndicator } from 'react-native';
 import { Swipeable } from "react-native-gesture-handler";
 
+import { GroupsContext } from '../context/groups/GroupsContext';
 import { Routine } from '../interfaces/interfaces';
 import { CardRoutine } from "./cards/CardRoutine";
-import { Title } from "./headers/Title";
 import { LeftSwipe } from "./swipers/LeftSwipe";
 import { RightSwipe } from "./swipers/RightSwipe";
 import { ScreenEmpty } from "./ScreenEmpty";
 import { RoutinesContext } from "../context/routines/RoutinesContext";
+import { ListCardPlaceholder } from "./placeholders/ListCardPlaceholder";
+import { ThemeContext } from "../context/theme/ThemeContext";
+import { CardPlaceholder } from "./placeholders/CardPlaceholder";
 
 const widthScreen = Dimensions.get('window').width
 
 interface Props {
-    routines: Routine[];
-    loadMore: () => Promise<void>
+    routines:               Routine[];
+    swipeLeftUsable?:       boolean;
+    isAdminRoutineGroup?:   boolean;
+    loadMore:               ((idGroup?: string) => Promise<void>)
 }
 
-export const ListHomeRoutines = ( { routines, loadMore }: Props ) => {
+export const ListHomeRoutines = ( { routines, swipeLeftUsable=true,isAdminRoutineGroup=true, loadMore }: Props ) => {
     
-    const {deleteRoutine} = useContext(RoutinesContext)
+    const {isLoading,isLoadingMore, isCreatigCopy, deleteRoutine} = useContext(RoutinesContext)
+    const {isLoadingRoutinesGroup} = useContext(GroupsContext)
+    const {theme} = useContext(ThemeContext)
 
-    const marginTop = useRef(new Animated.Value(0)).current;
+    const marginTop = useRef(new Animated.Value(20)).current;
 
-    const moveTopAnimation = ()=>{
+    // Animacion para cuando creo copia de rutina
+/*     const moveTopAnimation = ()=>{
         Animated.timing(
             marginTop, {
                 toValue:210,
@@ -36,12 +44,12 @@ export const ListHomeRoutines = ( { routines, loadMore }: Props ) => {
     useEffect(()=>{
         Animated.timing(
             marginTop, {
-                toValue:0,
+                toValue:20,
                 useNativeDriver:false,
                 duration:10
             }
         ).start()
-    },[routines])
+    },[routines]) */
 
     // Modal para verificar que se quiere eliminar la rutina
     const onDeleteRoutine = (idRoutine:string)=>{
@@ -63,30 +71,32 @@ export const ListHomeRoutines = ( { routines, loadMore }: Props ) => {
     }
     
     const renderItem = ( item:Routine, index:number ) => {
-
         if (index === 0) {
             return (
-                <Animated.View style={{alignItems:'center', marginVertical:10, marginTop, paddingTop:30}}>
-                    <Swipeable
-                        renderLeftActions={()=>(<LeftSwipe routine={item} moveTopAnimation={moveTopAnimation}/>)}
-                        overshootLeft={false}
-                        renderRightActions={()=>(<RightSwipe size="sizeRoutine" id={item._id} onDelete={onDeleteRoutine} />)}
-                        overshootRight={false}
-                    >
-                        <CardRoutine
-                            routine={ item }
-                        />
-                    </Swipeable>
-                </Animated.View>
+                <>
+                    {(isCreatigCopy) && <CardPlaceholder marginTop={20}/>}
+                    <Animated.View style={{paddingVertical:10, marginTop}}>
+                        <Swipeable
+                            renderLeftActions={()=>(swipeLeftUsable) && (<LeftSwipe routine={item}/>)}
+                            overshootLeft={false}
+                            renderRightActions={()=>(isAdminRoutineGroup) && (<RightSwipe id={item._id} onDelete={onDeleteRoutine} />)}
+                            overshootRight={false}
+                        >
+                            <CardRoutine
+                                routine={ item }
+                            />
+                        </Swipeable>
+                    </Animated.View>
+                </>
             )
         }
 
         return (
-                <View style={{alignItems:'center', marginVertical:10}}>
+                <View style={{paddingVertical:10}}>
                     <Swipeable
-                        renderLeftActions={()=>(<LeftSwipe routine={item} moveTopAnimation={moveTopAnimation}/>)}
+                        renderLeftActions={()=>(swipeLeftUsable) && (<LeftSwipe routine={item}/>)}
                         overshootLeft={false}
-                        renderRightActions={()=>(<RightSwipe size="sizeRoutine" id={item._id} onDelete={onDeleteRoutine} />)}
+                        renderRightActions={()=>(isAdminRoutineGroup) && (<RightSwipe id={item._id} onDelete={onDeleteRoutine} />)}
                         overshootRight={false}
                     >
                         <CardRoutine
@@ -97,27 +107,43 @@ export const ListHomeRoutines = ( { routines, loadMore }: Props ) => {
         );
     };
 
+    if(isLoading || isLoadingRoutinesGroup){
+        return (
+            <ListCardPlaceholder />
+        )
+    }
+
     return (
         <FlatList 
             data={routines}
             renderItem={({item, index})=>renderItem(item, index)}
             ListEmptyComponent={()=> <ScreenEmpty text="No tienes rutinas aún"/>}
             keyExtractor={ ( item ) => item._id }
-            // ListHeaderComponent={ () => (
-            //         <Title text='Mis rutinas' style={styles.titleList}/>
-            //     ) }
             showsVerticalScrollIndicator={ false }
-            onEndReached={ loadMore }
+            onEndReached={ ()=>loadMore() }
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={()=>(
+                <View style={styles.footer}>
+                    {(isLoadingMore)
+                        ? (
+                            <ActivityIndicator 
+                                color={theme.colors.primary}
+                            />
+                        )
+                        : (routines.length > 0) && (
+                                <Text style={{color:theme.disabledColor}}>No hay más resultados</Text>
+                            )
+                    }
+                </View>
+            )}
         />
     );
 }
 
 const styles = StyleSheet.create({
-    titleList:{
-        marginBottom:20, 
-        marginTop: 30,
-        paddingLeft:20, 
-        width:widthScreen-20 ,
-        // transform:[{scaleY:10}]
+    footer:{
+        height:50,
+        alignItems:'center',
+        justifyContent:'center'
     }
 });

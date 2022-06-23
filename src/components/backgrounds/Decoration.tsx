@@ -15,10 +15,11 @@ export const Decoration = ({bgColor}:Props) => {
 
 const styles = StyleSheet.create({
     decoration: {
-        top: windowHeight - 150,
+        top: windowHeight - 100,
         height: 300,
         position: 'absolute',
-        transform: [ { rotate: '-15deg' } ],
+        transform: [ { rotate: '-12deg' } ],
         width: 800,
+        left:-100
     },
 });

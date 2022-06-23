@@ -23,7 +23,7 @@ export const NameApp = ({size, style}:Props) => {
 
 const styles = StyleSheet.create({
     titleContainer: {
-        width: 400
+        // width: 400
         // alignItems: 'center',
         // flex: 2,
         // justifyContent: 'center',

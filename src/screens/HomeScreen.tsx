@@ -1,33 +1,50 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { View, StyleSheet} from 'react-native'
+import { View, StyleSheet, Text} from 'react-native'
 
 import { FloatButton } from '../components/buttons/FloatButton'
-import { useNavigation } from '@react-navigation/native';
 import { GradientBackground } from '../components/backgrounds/GradientBackground';
 import { RoutinesContext } from '../context/routines/RoutinesContext';
 import { ListHomeRoutines } from '../components/ListHomeRoutines';
+import { ModalNewRoutine } from '../components/modals/ModalNewRoutine';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootRoutinesNavigator } from '../router/RoutinesNavigator';
+import { LogoApp } from '../components/LogoApp';
+import { ThemeContext } from '../context/theme/ThemeContext';
 
+interface Props extends NativeStackScreenProps<RootRoutinesNavigator,'HomeScreen'>{}
 
-export const HomeScreen = () => {
+export const HomeScreen = ({navigation}:Props) => {
 
-    const {navigate} = useNavigation<any>()
-    const {listRoutines, getRoutines, loadMore, clearActualRoutine} = useContext(RoutinesContext)
-    
-
-    // const [editing, setEditing] = useState('')
+    const {listRoutines, getRoutines, loadMore} = useContext(RoutinesContext)
+    const {theme} = useContext(ThemeContext)
+    const [isOpenModalNewRoutine, setIsOpenModalNewRoutine] = useState(false)
 
     useEffect(()=>{
-        getRoutines();
+        navigation.setOptions({
+            headerLeft: ()=>(
+                <View style={styles.headerContainer}>
+                    <LogoApp size='small'/>
+                    <Text style={{...styles.headerTitle,color:theme.whiteColor}}>Routines app</Text>
+                </View>
+            )
+        })
     },[])
+    
 
-    const onNewRoutine = ()=>{
-        clearActualRoutine()
-        navigate('FormRoutineScreen')
-    }
+    useEffect(()=>{
+        getRoutines({isLoadMore:false});
+    },[])
 
     return (
         <View style={styles.routines}>
             <GradientBackground />
+            {(isOpenModalNewRoutine) &&  (
+                <ModalNewRoutine 
+                    isOpenModalNewRoutine={isOpenModalNewRoutine} 
+                    setIsOpenModalNewRoutine={setIsOpenModalNewRoutine}
+                />
+            )}
+           
 
             <View style={styles.listRoutines}>
                 <ListHomeRoutines 
@@ -36,13 +53,22 @@ export const HomeScreen = () => {
                 />
             </View>
             
-            <FloatButton onPress={onNewRoutine} />
+            <FloatButton onPress={()=>setIsOpenModalNewRoutine(true)} />
             
         </View>
     )
 }
 
 const styles = StyleSheet.create({
+    headerContainer:{
+        flexDirection:'row', 
+        alignItems:'center'
+    },
+    headerTitle:{
+        fontSize:21, 
+        fontWeight:'500', 
+        marginLeft:10
+    },
     routines:{
         flex: 1,
         alignItems:'center',

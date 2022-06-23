@@ -13,7 +13,7 @@ export const ScreenEmpty = ( { text }: Props ) => {
 
     return (
         <View style={styles.textContainer}>
-            <Text style={{...styles.textEmpty, color:theme.strongPrimary}}>{ text }</Text>
+            <Text style={{...styles.textEmpty, color:theme.disabledColor}}>{ text }</Text>
         </View>
     )
 }
@@ -26,6 +26,6 @@ const styles = StyleSheet.create({
         alignItems:'center'
     },
     textEmpty:{
-        fontSize:20
+        fontSize:16
     }
 });

@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
-import React, { useContext } from 'react'
-import { View, Text, StyleSheet, SectionList, TouchableOpacity, Image, Alert } from 'react-native'
+import React, { useContext, useState } from 'react'
+import { View, Text, StyleSheet, SectionList, TouchableOpacity, Image, Alert, Switch } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { Title } from '../components/headers/Title'
 import { ThemeContext } from '../context/theme/ThemeContext'
@@ -13,9 +13,21 @@ interface Props extends NativeStackScreenProps<RootAccountNavigator,'AccountScre
 
 export const AccountScreen = ({navigation}:Props) => {
 
-    const {theme} = useContext(ThemeContext)
+    const {theme, setDarkTheme,setLightTheme} = useContext(ThemeContext)
     const {colors} = theme;
     const {user, logout} = useContext(AuthContext)
+
+    const [isDarkTheme, setIsDarkTheme] = useState((theme.currentTheme === 'dark'))
+
+    const onChangeSwitch = ()=>{
+        if (isDarkTheme) {
+            setIsDarkTheme(false)
+            setLightTheme()
+        } else {
+            setIsDarkTheme(true)
+            setDarkTheme()
+        }
+    }
 
     // Modal para verificar que se quiere cerrar sesión
     const logoutModal = () => {
@@ -38,7 +50,26 @@ export const AccountScreen = ({navigation}:Props) => {
 
     return (
         <View style={ styles.container }>
-            {/* <NameApp size='medium' style={styles.title}/> */}
+            <View style={styles.themeContainer}>
+                <Icon 
+                    name='sunny'
+                    size={25}
+                    color={(!isDarkTheme) ? colors.primary : theme.disabledColor}
+                />
+                <Switch 
+                    onValueChange={onChangeSwitch}
+                    value={isDarkTheme}
+                    trackColor={{false: theme.dividerColor, true: theme.lightPrimary}}
+                    thumbColor={colors.primary}
+                    
+                    style={styles.switch}
+                />
+                <Icon 
+                    name='moon'
+                    size={22}
+                    color={(isDarkTheme) ? colors.primary : theme.disabledColor}
+                />
+            </View>
             <View style={styles.dataUserContainer}>
                 <View style={{...styles.imageContainer, borderColor:colors.primary}}>
                     <Image 
@@ -49,58 +80,59 @@ export const AccountScreen = ({navigation}:Props) => {
 
                 <View style={styles.nameContainer}>
                     <Text style={{...styles.nameUser, color: colors.text}}>{user?.name}</Text>
-                    <Text style={styles.emailUser}>{user?.email}</Text>
+                    <Text style={{...styles.emailUser, color: theme.lightText}}>{user?.email}</Text>
                 </View>
             </View>
 
             <View style={styles.configContainer}>
                 <TouchableOpacity 
-                    style={styles.rowContainer}
-                    onPress={()=>navigation.navigate('EditProfile')}
+                    style={{...styles.rowContainer, borderColor: theme.dividerColor}}
+                    onPress={()=>navigation.navigate('EditProfileScreen')}
                     disabled={(user?.google)}
                 >
                     <Text style={{...styles.textConfig, color: (user?.google) ? theme.disabledColor : colors.text }}>Editar perfil</Text>
                     <Icon 
                         name='chevron-forward-outline'
-                        size={20}
+                        size={18}
                         color={(user?.google) ? theme.disabledColor : colors.text}
                     />
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                    style={styles.rowContainer}
-                    onPress={()=>navigation.navigate('EditEmail')}
+                    style={{...styles.rowContainer, borderColor: theme.dividerColor}}
+                    onPress={()=>navigation.navigate('EditEmailScreen')}
                     disabled={(user?.google)}
                 >
                     <Text style={{...styles.textConfig, color: (user?.google) ? theme.disabledColor : colors.text}}>Cambiar email</Text>
                     <Icon 
                         name='chevron-forward-outline'
-                        size={20}
+                        size={18}
                         color={(user?.google) ? theme.disabledColor : colors.text}
                     />
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                    style={styles.rowContainer}
-                    onPress={()=>navigation.navigate('EditPassword')}
+                    style={{...styles.rowContainer, borderColor: theme.dividerColor}}
+                    onPress={()=>navigation.navigate('EditPasswordScreen')}
                     disabled={(user?.google)}
                 >
                     <Text style={{...styles.textConfig, color: (user?.google) ? theme.disabledColor : colors.text}}>Cambiar contraseña</Text>
                     <Icon 
                         name='chevron-forward-outline'
-                        size={20}
+                        size={18}
                         color={(user?.google) ? theme.disabledColor : colors.text}
                     />
                 </TouchableOpacity>
 
                 <TouchableOpacity 
-                    style={styles.rowContainer}
+                    style={{...styles.rowContainer, borderColor: theme.dividerColor}}
                     onPress={logoutModal}
                 >
                     <Text style={{...styles.textConfig, color:colors.text}}>Cerrar sesión</Text>
                     <Icon 
                         name='chevron-forward-outline'
-                        size={20}
+                        size={18}
+                        color={colors.text}
                     />
                 </TouchableOpacity>
             </View>
@@ -113,27 +145,47 @@ const styles = StyleSheet.create( {
         flex: 1,
         alignItems:'center',
     },
+    themeContainer:{
+        flexDirection:'row',
+        marginTop:20,
+        marginRight:20,
+        alignSelf:'flex-end',
+        alignItems:'center',
+        width:110,
+        justifyContent:'space-between'
+    },
+    switch:{
+        transform:[{scaleX:1.2}, {scaleY: 1.2}]
+    },
     title:{ 
         marginTop:20,
         marginLeft:20
     },
     dataUserContainer:{
-        marginTop:80,
+        marginTop:60,
         alignItems:'center'
     },
     imageContainer: {
-        // borderWidth: 1,
         width: 200,
         height: 200,
         borderRadius: 100,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 5,
     },
     image:{
         width:200,
         height:200,
         borderRadius:100,
-        borderWidth:2
+        // borderWidth:2
     },
     nameContainer:{
         justifyContent:'center',
@@ -155,11 +207,13 @@ const styles = StyleSheet.create( {
         flexDirection:'row',
         justifyContent:'space-between',
         borderBottomWidth:1,
-        borderBottomColor:'#aaa',
+        // borderBottomColor:'#aaa',
         marginVertical:10,
-        paddingBottom:10
+        paddingBottom:10,
+        alignItems:'center'
     },
     textConfig:{
-        fontSize:18
+        fontSize:16,
+        // marginBottom:10
     }
 } );

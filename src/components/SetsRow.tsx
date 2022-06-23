@@ -1,9 +1,8 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
+import { View, Text, TextInput, StyleSheet, Switch } from 'react-native'
+
+import { ThemeContext } from '../context/theme/ThemeContext';
 import { Set } from '../interfaces/interfaces';
-import { Swipeable } from 'react-native-gesture-handler';
-import { RightSwipe } from './swipers/RightSwipe';
-import Icon from 'react-native-vector-icons/Ionicons';
 import { FloatDeleteIcon } from './buttons/FloatDeleteIcon';
 
 interface Props {
@@ -16,32 +15,49 @@ interface Props {
 }
 
 export const SetsRow = ( { set, idWorkout, typeUnit, isEditing, changeSet, deleteSet }: Props ) => {
+
+    const {theme} = useContext(ThemeContext)
+
     return (
         <View style={styles.container}>
             <View style={ styles.set } key={ set._id }>
                 <View style={ styles.row }>
-                    <Text style={ styles.textLabel }>Cantidad de repes:</Text>
+                    <Text style={ {...styles.textLabel, color:theme.lightText} }>Cantidad de repes:</Text>
                     <TextInput
                         placeholder='12'
+                        placeholderTextColor={theme.placeholderColor}
                         value={ set.numReps.toString() }
+                        maxLength={2}
                         keyboardType='numeric'
-                        style={ styles.textInput }
+                        style={ {...styles.textInput, color:theme.colors.text} }
                         onChangeText={ ( value ) => changeSet( idWorkout, set._id, { ...set, numReps: value } ) }
                     />
                 </View>
 
                 <View style={ styles.row }>
-                    <Text style={ styles.textLabel }>Peso:</Text>
+                    <Text style={ {...styles.textLabel, color:theme.lightText} }>Peso:</Text>
                     <View style={ styles.row }>
                         <TextInput
                             placeholder='25'
+                            placeholderTextColor={theme.placeholderColor}
                             value={ set.weight?.toString() || '' }
+                            maxLength={3}
                             keyboardType='numeric'
-                            style={ styles.textInput }
+                            style={ {...styles.textInput, color:theme.colors.text} }
                             onChangeText={ ( value ) => changeSet( idWorkout, set._id, { ...set, weight: value } ) }
                         />
-                        <Text style={ styles.textLabel }>{ typeUnit }</Text>
+                        <Text style={ {...styles.textLabel, color:theme.lightText} }>{ typeUnit }</Text>
                     </View>
+                </View>
+
+                <View style={ styles.row }>
+                    <Text style={ {...styles.textLabel, color:theme.lightText} }>Descendente:</Text>
+                    <Switch
+                        value={set.isDescending}
+                        onValueChange={( value ) => changeSet( idWorkout, set._id, { ...set, isDescending: value } )}
+                        trackColor={{false: theme.dividerColor, true: theme.lightPrimary}}
+                        thumbColor={(set.isDescending) ? theme.colors.primary : theme.grey}
+                    />
                 </View>
 
 
@@ -62,10 +78,9 @@ const styles = StyleSheet.create( {
     container:{
         flexDirection:'row', 
         borderBottomWidth: 1,
-        // borderColor: '#11111190',
         alignItems:'center',
         borderColor: '#11111130',
-        // borderColor:'#111'
+        marginBottom:10
     },
     set: {
         // paddingHorizontal: 20,
@@ -79,10 +94,10 @@ const styles = StyleSheet.create( {
         height: 35
     },
     textLabel: {
-        fontSize: 18,
+        fontSize: 16,
     },
     textInput: {
-        fontSize: 18,
+        fontSize: 16,
         paddingHorizontal: 5,
         justifyContent: 'center',
         alignItems: 'center',

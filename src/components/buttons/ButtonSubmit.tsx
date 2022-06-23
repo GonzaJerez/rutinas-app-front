@@ -14,7 +14,8 @@ interface Props {
 
 export const ButtonSubmit = ({text, style, type='primary', onPress, icon}:Props) => {
 
-    const { theme:{colors} } = useContext( ThemeContext )
+    const { theme } = useContext( ThemeContext )
+    const {colors} = theme;
 
     return (
         <TouchableOpacity
@@ -27,14 +28,14 @@ export const ButtonSubmit = ({text, style, type='primary', onPress, icon}:Props)
         } }>
             <Text style={ { 
                 ...styles.textButton, 
-                color: (type === 'primary') ? colors.background : colors.primary } }>{text}
+                color: (type === 'primary') ? theme.whiteColor : colors.primary } }>{text}
             </Text>
             {
                 (icon)
                     && <Icon 
                         name={icon}
                         size={30}
-                        color={colors.background}
+                        color={theme.whiteColor}
                         style={styles.icon}
                     />
             }
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection:'row',
         borderRadius: 50,
-        height: 55,
+        height: 50,
         justifyContent: 'center',
         width: 120,
         shadowColor: "#000",
@@ -62,7 +63,7 @@ const styles = StyleSheet.create({
         elevation: 7,
     },
     textButton: {
-        fontSize: 20,
+        fontSize: 18,
         textAlign: 'center'
     },
     icon:{

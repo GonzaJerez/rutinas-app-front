@@ -14,7 +14,7 @@ export const TextError = ({size, children}:Props) => {
 
     return (
         <Text
-            style={ { color:theme.errors, ...styles[size]} }
+            style={ {color:theme.errors, ...styles[size]} }
         >
             {children}
         </Text>
@@ -26,7 +26,7 @@ const styles = StyleSheet.create( {
         fontSize: 12,
     },
     medium: {
-        fontSize: 20,
+        fontSize: 16,
     },
     big: {
         fontSize: 30,

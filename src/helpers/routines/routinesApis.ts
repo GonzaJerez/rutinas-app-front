@@ -3,9 +3,10 @@ import { GetRoutines, Routine, RoutineCreateState } from "../../interfaces/inter
 import { deleteIdsRoutineCreation } from "../deleteIdsRoutineCreation";
 
 export interface GetRoutinesProps {
-    page:  number;
-    limit: number;
-    token: string;
+    page:           number;
+    limit:          number;
+    token:          string;
+    addedRoutines:  number;
 }
 
 export interface CreateRoutineProps {
@@ -27,10 +28,10 @@ export interface CreateCopyProps {
     token:      string;
 }
 
-export const getRoutinesFromDB = async({page,limit,token}:GetRoutinesProps) => {
+export const getRoutinesFromDB = async({page,limit,token, addedRoutines}:GetRoutinesProps) => {
 
     const resp = await routinesApi({
-        endpoint: `/routines?page=${page}&limit=${limit}`,
+        endpoint: `/routines?page=${page}&limit=${limit}&addedRoutines=${addedRoutines}`,
         method:'GET',
         token
     })

@@ -2,44 +2,44 @@ import React from 'react';
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useContext } from "react";
 import { ThemeContext } from "../context/theme/ThemeContext";
-import { EditProfile } from "../screens/account/EditProfile";
+import { EditProfileScreen } from "../screens/account/EditProfileScreen";
 import { AccountScreen } from '../screens/AccountScreen';
-import { EditEmail } from '../screens/account/EditEmail';
-import { EditPassword } from '../screens/account/EditPassword';
+import { EditEmailScreen } from '../screens/account/EditEmailScreen';
+import { EditPasswordScreen } from '../screens/account/EditPasswordScreen';
 
 
 export type RootAccountNavigator = {
-    AccountScreen:  undefined;
-    EditProfile:    undefined;
-    EditEmail:      undefined;
-    EditPassword:   undefined;
+    AccountScreen:        undefined;
+    EditProfileScreen:    undefined;
+    EditEmailScreen:      undefined;
+    EditPasswordScreen:   undefined;
 }
 
 const Stack = createNativeStackNavigator<RootAccountNavigator>();
 
 export const AccountNavigator = () => {
 
-    const { theme: { colors } } = useContext( ThemeContext )
+    const { theme } = useContext( ThemeContext )
+    const {colors} = theme;
 
     return (
         <Stack.Navigator
             screenOptions={ {
-                // headerShown: false,
                 headerTitleStyle: {
-                    color: colors.background,
-                    fontSize: 23,
-                    fontFamily: 'Roboto'
+                    fontSize: 21,
                 },
                 headerStyle: {
-                    backgroundColor: colors.primary,
-                }
+                    backgroundColor: (theme.currentTheme === 'dark') ? theme.colors.background : theme.colors.primary,
+                },
+                headerTitleAlign:'center',
+                headerTintColor:theme.whiteColor
             } }
 
         >
-            <Stack.Screen name="AccountScreen" component={ AccountScreen } />
-            <Stack.Screen name="EditProfile" component={ EditProfile } />
-            <Stack.Screen name="EditEmail" component={ EditEmail } />
-            <Stack.Screen name="EditPassword" component={ EditPassword } />
+            <Stack.Screen name="AccountScreen" component={ AccountScreen } options={{title: 'Cuenta'}} />
+            <Stack.Screen name="EditProfileScreen" component={ EditProfileScreen } options={{title: 'Editar perfil'}} />
+            <Stack.Screen name="EditEmailScreen" component={ EditEmailScreen } options={{title: 'Editar email'}} />
+            <Stack.Screen name="EditPasswordScreen" component={ EditPasswordScreen } options={{title: 'Editar contraseña'}}/>
         </Stack.Navigator>
     )
 }

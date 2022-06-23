@@ -14,11 +14,17 @@ import { BoxInput } from './BoxInput'
 import { ButtonSubmit } from '../buttons/ButtonSubmit'
 import { routinesApi } from '../../api/routinesApi'
 import { AuthContext } from '../../context/auth/AuthContext'
+import { SecondaryButton } from '../buttons/SecondaryButton';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootAuthNavigator } from '../../router/AuthNavigator';
 
 export const LoginForm = () => {
 
     const { theme } = useContext( ThemeContext )
     const { colors } = theme;
+
+    const {navigate} = useNavigation<NativeStackNavigationProp<RootAuthNavigator, "LoginScreen">>()
 
     const {googleSignIn, login, errorMsg} = useContext(AuthContext)
 
@@ -75,9 +81,9 @@ export const LoginForm = () => {
             {
                 ({handleSubmit}) => (
 
-                    <View style={ styles.container }>
+                    <View style={ {...styles.container, backgroundColor:theme.colors.card} }>
 
-                        <BoxInput label='Ingrese su email' name='email' placeholder='email@gmail.com' marginTop='mediumMT' />
+                        <BoxInput label='Ingrese su email' name='email' placeholder='email@gmail.com' email marginTop='mediumMT' />
 
                         <BoxInput label='Ingrese su contraseña' name='password' placeholder='••••••' pass marginTop='mediumMT' />
 
@@ -93,10 +99,8 @@ export const LoginForm = () => {
                             style={{marginTop:50}}
                         />
 
-                        <View style={ { marginTop: '10%' } }>
-                            <TouchableOpacity>
-                                <Text style={ { color: theme.lightPrimary } }>Olvidé mi contraseña</Text>
-                            </TouchableOpacity>
+                        <View style={ { marginTop: 30, alignSelf:'flex-start' } }>
+                            <SecondaryButton text='Olvidé mi contraseña' onPress={()=>navigate('ForgotPasswordScreen')}/>
                         </View>
 
                         <View style={ { ...styles.separator, borderColor: theme.dividerColor } } />
@@ -104,11 +108,11 @@ export const LoginForm = () => {
                         <View style={ { alignItems: 'center' } }>
                             <TouchableOpacity style={ styles.googleButton } onPress={signInWithGoogle}>
                                 <View style={ styles.googleTextContainer }>
-                                    <Text style={ { fontSize: 16, color: colors.background } }>Ingresar con Google</Text>
+                                    <Text style={ {color: theme.whiteColor } }>Ingresar con Google</Text>
                                 </View>
-                                <View style={ styles.googleIconContainer }>
+                                <View style={ {...styles.googleIconContainer, backgroundColor:theme.whiteColor} }>
                                     <Image
-                                        style={ { ...styles.googleIcon, backgroundColor: colors.background } }
+                                        style={ { ...styles.googleIcon } }
                                         source={ require( '../../assets/logo-google.png' ) }
                                     />
                                 </View>
@@ -126,12 +130,25 @@ const styles = StyleSheet.create( {
     container: {
         flex: 1,
         justifyContent: 'center',
-        // backgroundColor:'red'
-        // paddingHorizontal: 10,
+        alignItems:'center',
+        borderRadius:25,
+        paddingHorizontal:15,
+        marginBottom:20,
+        marginHorizontal:10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
     },
     separator: {
         borderBottomWidth: 1,
         marginVertical: 35,
+        width:'100%'
     },
     googleButton: {
         borderColor: '#1A8BF6',
@@ -139,7 +156,7 @@ const styles = StyleSheet.create( {
         flexDirection: 'row',
         height: 40,
         marginBottom: '10%',
-        width: 250,
+        width: 230,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -160,7 +177,7 @@ const styles = StyleSheet.create( {
         alignItems: 'center',
         flex: 1,
         justifyContent: 'center',
-        width: 35
+        width: 35,
     },
     googleIcon: {
         height: 25,

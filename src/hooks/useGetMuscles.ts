@@ -5,12 +5,14 @@ import { Muscle, GetMuscles } from '../interfaces/interfaces';
 
 export const useGetMuscles = ()=>{
     const [muscles, setMuscles] = useState<Muscle[]>([])
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(()=>{
         getMuscles()
     },[])
 
     const getMuscles = async()=>{
+        setIsLoading(true)
         try {
             const resp:GetMuscles = await routinesApi({
                 endpoint:'/muscles',
@@ -18,6 +20,7 @@ export const useGetMuscles = ()=>{
             })
     
             setMuscles(resp.muscles)
+            setIsLoading(false)
         
         } catch (error) {
             console.log(error);
@@ -25,5 +28,8 @@ export const useGetMuscles = ()=>{
         
     }
 
-    return {muscles}
+    return {
+        muscles,
+        isLoading
+    }
 }

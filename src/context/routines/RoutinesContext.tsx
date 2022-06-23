@@ -1,15 +1,18 @@
 import React, { createContext, useContext, useReducer, useState } from "react";
 import { AuthContext } from "../auth/AuthContext";
 import { RoutinesReducer, StateProps, initialState } from "./RoutinesReducer";
-import { CombinedWorkout, Day, GetRoutines, Routine, RoutineCreateState, RoutineResponse, SearchInDB, WorkoutInRoutine } from '../../interfaces/interfaces';
+import { CombinedWorkout, Day, GetRoutines, Routine, RoutineCreateState, RoutineResponse, WorkoutInRoutine } from '../../interfaces/interfaces';
 import { CreateCopyProps, createCopyRoutineApi, createRoutineInDB, CreateRoutineProps, deleteRoutineInDB, DeleteRoutineProps, getRoutinesFromDB, GetRoutinesProps, updateRoutineInDB, UpdateRoutineProps } from "../../helpers/routines/routinesApis";
 import { createDayRoutineInDB, CreateDayRoutineProps, deleteDayRoutineInDB, DeleteDayRoutineProps, updateDayRoutineInDB, UpdateDayRoutineProps } from "../../helpers/routines/dayRoutineApis";
 import { createWorkoutInRoutineInDB, createWorkoutInRoutineProps, deleteWorkoutInRoutineInDB, DeleteWorkoutInRoutineProps, updateWorkoutInRoutineInDB, UpdateWorkoutInRoutineProps } from "../../helpers/routines/workoutInRoutineApis";
 import { CreateCombinedWorkoutProps, createCombinedWorkoutsApi, deleteCombinedWorkoutApi, DeleteCombinedWorkoutProps, PatchWeightCombinedWorkoutProps, patchWeightCombinedWorkoutsApi, UpdateCombinedWorkoutProps, updateCombinedWorkoutsApi } from "../../helpers/routines/combinedWorkoutsApis";
-import { searchInCollectionApi, SearchProps } from "../../helpers/searchApi";
 
 interface ContextProps extends StateProps {
-    getRoutines:            () => Promise<void>;
+    isLoading:              boolean;
+    isLoadingMore:          boolean;
+    isWaitingReqRoutines:   boolean;
+    isCreatigCopy:          boolean;
+    getRoutines:            ({ isLoadMore }: {isLoadMore?: boolean | undefined;}) => Promise<void>
     loadMore:               () => Promise<void>;
     createRoutine:          (form: RoutineCreateState) => Promise<{msg:string} | undefined>
     updateRoutine:          (idRoutine: string, form: RoutineCreateState) => Promise<{msg: string} | undefined>
@@ -17,18 +20,19 @@ interface ContextProps extends StateProps {
     createCopyRoutine:      (idRoutine: string) => Promise<void>
     setActualRoutine:       (routine: Routine) => void
     clearActualRoutine:     () => void
+    addNewRoutineToListRoutines: (routine: Routine) => void
     createDayRoutine:       (idRoutine: string) => Promise<void | Routine>
     updateDayRoutine:       (idDay: string, combinedWorkouts: CombinedWorkout[]) => Promise<void>
     deleteDayRoutine:       (idDay: string) => Promise<void>
     createCombinedWorkouts: (idDay: string, body: CombinedWorkout) => Promise<void>
     updateCombinedWorkouts: (idDay: string, idCombinedWorkouts: string, body: CombinedWorkout) => Promise<void>
     // patchWeightCombinedWorkouts: (idDay: string, idCombinedWorkouts: string, newWeights: number[]) => Promise<void>
-    deleteCombinedWorkouts: (idDay: string, idCombinedWorkouts: string) => Promise<void>
+    // deleteCombinedWorkouts: (idDay: string, idCombinedWorkouts: string) => Promise<void>
     setActualCombinedWorkouts: (combinedWorkouts: CombinedWorkout) => void
     clearActualCombinedWorkouts: () => void
-    createWorkoutInRoutine: (idDay: string, idCombinedWorkouts: string, form: WorkoutInRoutine) => Promise<void>
-    updateWorkoutInRoutine: (idDay: string, idCombinedWorkouts: string, idWorkoutInRoutine: string, form: WorkoutInRoutine) => Promise<void>
-    deleteWorkoutInRoutine: (idDay: string, idCombinedWorkouts: string, idWorkoutInRoutine: string) => Promise<void>
+    // createWorkoutInRoutine: (idDay: string, idCombinedWorkouts: string, form: WorkoutInRoutine) => Promise<void>
+    // updateWorkoutInRoutine: (idDay: string, idCombinedWorkouts: string, idWorkoutInRoutine: string, form: WorkoutInRoutine) => Promise<void>
+    // deleteWorkoutInRoutine: (idDay: string, idCombinedWorkouts: string, idWorkoutInRoutine: string) => Promise<void>
     setError:           (error: string) => void
 }
 
@@ -38,20 +42,30 @@ export const RoutinesContext = createContext({} as ContextProps)
 export const RoutinesProvider = ({children}:any)=>{
 
     const {token} = useContext(AuthContext)
+    const [isLoading, setIsLoading] = useState(false)
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
+    const [isWaitingReqRoutines, setIsWaitingReq] = useState(false)
+    const [isCreatigCopy, setIsCreatigCopy] = useState(false)
     const [page, setPage] = useState(1)
-    const limit = 100;
+    const [addedRoutines, setAddedRoutines] = useState(0)
+    const limit = 10;
 
     const [state, dispatch] = useReducer(RoutinesReducer, initialState)
-    
     
     /**
      * Carga las rutinas del usuario en pantalla principal
      */
-    const getRoutines = async()=>{
+    const getRoutines = async({isLoadMore}:{isLoadMore?: boolean})=>{
         if (!token) return;
 
+        
+        if (!isLoadMore) {
+            setIsLoading(true)
+            setAddedRoutines(0)
+        }
+
         const args:GetRoutinesProps = {
-            page,limit,token
+            page,limit,token, addedRoutines
         }
 
         try{
@@ -61,12 +75,11 @@ export const RoutinesProvider = ({children}:any)=>{
                 return dispatch({type:'setError', payload:msg})
             }
 
-            routines.sort((a,b) => b.modifyDate - a.modifyDate)
             dispatch({type:'addRoutinesToListRoutines', payload:{routines}})
-            // console.log(state.listRoutines);
-            
 
             setPage( page + 1)
+            setIsLoading(false)
+            setIsLoadingMore(false)
         } catch(err){
             console.log(err);
         }
@@ -76,9 +89,10 @@ export const RoutinesProvider = ({children}:any)=>{
      * Carga más rutinas con un lazy load
      */
     const loadMore = async()=>{
-        if (state.listRoutines.length === limit * (page - 1) ) {
-            await getRoutines()
-        }
+        // if (state.listRoutines.length === limit * (page - 1) ) {
+            setIsLoadingMore(true)
+            await getRoutines({isLoadMore:true})
+        // }
     }
 
     /**
@@ -86,6 +100,7 @@ export const RoutinesProvider = ({children}:any)=>{
      */ 
     const createRoutine = async(form:RoutineCreateState)=>{
         if(!token) return;
+        setIsWaitingReq(true)
 
         const args:CreateRoutineProps = {
             body: form,
@@ -99,14 +114,14 @@ export const RoutinesProvider = ({children}:any)=>{
                 // return dispatch({type:'setError', payload:msg})
                 return {msg};
             }
-            // Llama a la creacion de un nuevo día y esa rutina actualizada es la que guarda en listRoutines
-            const routineWithFirstDay = await createDayRoutine(routine._id)
-            if(routineWithFirstDay){
-                dispatch({type:'addRoutinesToListRoutines', payload:{routines:[routineWithFirstDay]}})
-            }
             
+            dispatch({type:'setActualRoutine', payload:{routine}})
+            setAddedRoutines( addedRoutines + 1)
         } catch (err) {
             console.log(err);
+        }
+        finally{
+            setIsWaitingReq(false)
         }
     }
 
@@ -116,6 +131,7 @@ export const RoutinesProvider = ({children}:any)=>{
      */
     const updateRoutine = async(idRoutine:string, form:RoutineCreateState) => {
         if(!token) return;
+        setIsWaitingReq(true)
 
         const args:UpdateRoutineProps = {
             idRoutine,
@@ -131,9 +147,11 @@ export const RoutinesProvider = ({children}:any)=>{
             }
 
             dispatch({type: 'updateRoutine', payload:{routine}})
-            // updateListRoutines(routine)
         } catch (err) {
             console.log(err);
+        }
+        finally{
+            setIsWaitingReq(false)
         }
     }
 
@@ -142,12 +160,14 @@ export const RoutinesProvider = ({children}:any)=>{
      */
     const deleteRoutine = async(idRoutine:string) => {
         if(!token) return;
+        setIsWaitingReq(true)
 
         const args:DeleteRoutineProps = {idRoutine,token}
 
         try {
             await deleteRoutineInDB(args)
             dispatch({type: 'deleteRoutine', payload:{idRoutine}})
+            setIsWaitingReq(false)
 
         } catch (err) {
             console.log(err);
@@ -159,6 +179,7 @@ export const RoutinesProvider = ({children}:any)=>{
      */
     const createCopyRoutine = async(idRoutine:string)=>{
         if(!token) return;
+        setIsCreatigCopy(true)
 
         const args:CreateCopyProps = {
             idRoutine,
@@ -171,12 +192,15 @@ export const RoutinesProvider = ({children}:any)=>{
             if(msg){
                 return dispatch({type:'setError', payload:msg})
             }
-            if (routine) {
-                dispatch({type:'addRoutinesToListRoutines', payload:{routines:[routine]}})
-            }
+            
+            dispatch({type:'addNewRoutine', payload:{routine}})
+            setAddedRoutines( addedRoutines + 1)
             
         } catch (err) {
             console.log(err);
+        }
+        finally{
+            setIsCreatigCopy(false)
         }
     }
 
@@ -196,10 +220,19 @@ export const RoutinesProvider = ({children}:any)=>{
     }
 
     /**
+     * Actualiza listRoutines
+     */
+    const addNewRoutineToListRoutines = (routine:Routine)=>{
+        dispatch({type:'addNewRoutine', payload:{routine}})
+    }
+
+    /**
      * Crea nuevo día en DB y actualiza tanto el actualRoutine como el listRoutines
      */
     const createDayRoutine = async(idRoutine:string) => {
         if (!token) return;
+
+        setIsWaitingReq(true)
         const args:CreateDayRoutineProps = {idRoutine,token}
 
         try {
@@ -210,10 +243,13 @@ export const RoutinesProvider = ({children}:any)=>{
             }
 
             dispatch({type:'setActualRoutine', payload:{routine}})
-            // sortListRoutines()
+            dispatch({type:'updateRoutine', payload:{routine}})
             return routine;
         } catch (err) {
             console.log(err);
+        }
+        finally{
+            setIsWaitingReq(false)
         }
     }
 
@@ -248,6 +284,7 @@ export const RoutinesProvider = ({children}:any)=>{
             }
 
             dispatch({type:'setActualRoutine', payload:{routine}})
+            dispatch({type:'updateRoutine', payload:{routine}})
 
         } catch (err) {
             console.log(err);
@@ -273,6 +310,7 @@ export const RoutinesProvider = ({children}:any)=>{
             }
 
             dispatch({type:'setActualRoutine', payload:{routine}})
+            dispatch({type:'updateRoutine', payload:{routine}})
         } catch (err) {
             console.log(err);
         }
@@ -284,6 +322,8 @@ export const RoutinesProvider = ({children}:any)=>{
     const createCombinedWorkouts = async(idDay:string, body:CombinedWorkout)=>{
         if (!state.actualRoutine || !token) return;
 
+        setIsWaitingReq(true)
+        
         const args:CreateCombinedWorkoutProps = {
             idRoutine: state.actualRoutine?._id,
             idDay,
@@ -300,9 +340,13 @@ export const RoutinesProvider = ({children}:any)=>{
             }
 
             dispatch({type:'setActualRoutine', payload:{routine}})
-
+            dispatch({type:'updateRoutine', payload:{routine}})
+            
         } catch (err) {
             console.log(err);
+        }
+        finally{
+            setIsWaitingReq(false)
         }
     }
 
@@ -311,6 +355,7 @@ export const RoutinesProvider = ({children}:any)=>{
      */
     const updateCombinedWorkouts = async(idDay:string, idCombinedWorkouts:string, body:CombinedWorkout)=>{
         if (!state.actualRoutine || !token) return;
+        setIsWaitingReq(true)
         
         const args:UpdateCombinedWorkoutProps = {
             idRoutine: state.actualRoutine?._id,
@@ -330,9 +375,13 @@ export const RoutinesProvider = ({children}:any)=>{
             }
             
             dispatch({type:'setActualRoutine', payload:{routine}})
+            dispatch({type:'updateRoutine', payload:{routine}})
 
         } catch (err) {
             console.log(err);
+        }
+        finally{
+            setIsWaitingReq(false)
         }
     }
 
@@ -363,8 +412,9 @@ export const RoutinesProvider = ({children}:any)=>{
 
     /**
      * Elimina combinación de ejercicios en DB y actualiza tanto el actualRoutine como el listRoutines
+     * ESTO LO HACE EL BACKEND CUANDO SE ELIMINA EL ÚLTIMO "WORKOUTINROUTINE" DEL "COMBINEDWORKOUT"
      */
-    const deleteCombinedWorkouts = async(idDay:string, idCombinedWorkouts:string)=>{
+    /* const deleteCombinedWorkouts = async(idDay:string, idCombinedWorkouts:string)=>{
         if (!state.actualRoutine || !token) return;
 
         const args:DeleteCombinedWorkoutProps = {
@@ -386,7 +436,7 @@ export const RoutinesProvider = ({children}:any)=>{
         } catch (err) {
             console.log(err);
         }
-    }
+    } */
 
     const setActualCombinedWorkouts = (combinedWorkouts:CombinedWorkout)=>{
         dispatch({type:'setActualCombinedWorkouts', payload:{combinedWorkouts}})
@@ -396,87 +446,87 @@ export const RoutinesProvider = ({children}:any)=>{
         dispatch({type:'clearActualCombinedWorkouts'})
     }
 
-    /**
-     * Crea nuevo ejercicio en rutina y actualiza tanto el actualRoutine como el listRoutines
-     */
-    const createWorkoutInRoutine = async( idDay:string, idCombinedWorkouts:string, form:WorkoutInRoutine ) => {
-        if (!state.actualRoutine || !token) return;
+    // /**
+    //  * Crea nuevo ejercicio en rutina y actualiza tanto el actualRoutine como el listRoutines
+    //  */
+    // const createWorkoutInRoutine = async( idDay:string, idCombinedWorkouts:string, form:WorkoutInRoutine ) => {
+    //     if (!state.actualRoutine || !token) return;
 
-        const args:createWorkoutInRoutineProps = {
-            idRoutine: state.actualRoutine._id,
-            idDay,
-            idCombinedWorkouts,
-            form,
-            token
-        }
+    //     const args:createWorkoutInRoutineProps = {
+    //         idRoutine: state.actualRoutine._id,
+    //         idDay,
+    //         idCombinedWorkouts,
+    //         form,
+    //         token
+    //     }
 
-        try {
-            const {routine, msg}:RoutineResponse = await createWorkoutInRoutineInDB(args)
+    //     try {
+    //         const {routine, msg}:RoutineResponse = await createWorkoutInRoutineInDB(args)
             
-            if(msg){
-                return dispatch({type:'setError', payload:msg})
-            }
+    //         if(msg){
+    //             return dispatch({type:'setError', payload:msg})
+    //         }
 
-            dispatch({type:'setActualRoutine', payload:{routine}})
-        } catch (err) {
-            console.log(err);
-        }
-    }
+    //         dispatch({type:'setActualRoutine', payload:{routine}})
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // }
 
-    /**
-     * Actualiza ejercicio en rutina y actualiza tanto el actualRoutine como el listRoutines
-     */
-     const updateWorkoutInRoutine = async(idDay:string, idCombinedWorkouts:string, idWorkoutInRoutine:string, form:WorkoutInRoutine) => {
-        if (!state.actualRoutine || !token) return;
+    // /**
+    //  * Actualiza ejercicio en rutina y actualiza tanto el actualRoutine como el listRoutines
+    //  */
+    //  const updateWorkoutInRoutine = async(idDay:string, idCombinedWorkouts:string, idWorkoutInRoutine:string, form:WorkoutInRoutine) => {
+    //     if (!state.actualRoutine || !token) return;
 
-        const args:UpdateWorkoutInRoutineProps = {
-            idRoutine: state.actualRoutine._id,
-            idDay,
-            idCombinedWorkouts,
-            idWorkoutInRoutine,
-            form,
-            token
-        }
+    //     const args:UpdateWorkoutInRoutineProps = {
+    //         idRoutine: state.actualRoutine._id,
+    //         idDay,
+    //         idCombinedWorkouts,
+    //         idWorkoutInRoutine,
+    //         form,
+    //         token
+    //     }
 
-        try {
-            const {routine, msg}:RoutineResponse = await updateWorkoutInRoutineInDB(args)
+    //     try {
+    //         const {routine, msg}:RoutineResponse = await updateWorkoutInRoutineInDB(args)
             
-            if(msg){
-                return dispatch({type:'setError', payload:msg})
-            }
+    //         if(msg){
+    //             return dispatch({type:'setError', payload:msg})
+    //         }
 
-            dispatch({type:'setActualRoutine', payload:{routine}})
-        } catch (err) {
-            console.log(err);
-        }
-    }
+    //         dispatch({type:'setActualRoutine', payload:{routine}})
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // }
     
-    /**
-     * Elimina ejercicio en rutina y actualiza tanto el actualRoutine como el listRoutines
-     */
-    const deleteWorkoutInRoutine = async(idDay:string, idCombinedWorkouts:string, idWorkoutInRoutine:string) => {
-        if (!state.actualRoutine || !token) return;
+    // /**
+    //  * Elimina ejercicio en rutina y actualiza tanto el actualRoutine como el listRoutines
+    //  */
+    // const deleteWorkoutInRoutine = async(idDay:string, idCombinedWorkouts:string, idWorkoutInRoutine:string) => {
+    //     if (!state.actualRoutine || !token) return;
 
-        const args:DeleteWorkoutInRoutineProps = {
-            idRoutine: state.actualRoutine._id,
-            idDay,
-            idCombinedWorkouts,
-            idWorkoutInRoutine,
-            token
-        }
+    //     const args:DeleteWorkoutInRoutineProps = {
+    //         idRoutine: state.actualRoutine._id,
+    //         idDay,
+    //         idCombinedWorkouts,
+    //         idWorkoutInRoutine,
+    //         token
+    //     }
 
-        try {
-            const {routine, msg}:RoutineResponse = await deleteWorkoutInRoutineInDB(args)
+    //     try {
+    //         const {routine, msg}:RoutineResponse = await deleteWorkoutInRoutineInDB(args)
             
-            if(msg){
-                return dispatch({type:'setError', payload:msg})
-            }
+    //         if(msg){
+    //             return dispatch({type:'setError', payload:msg})
+    //         }
 
-            dispatch({type:'setActualRoutine', payload:{routine}})
-        } catch (err) {
-            console.log(err);
-        }
-    }
+    //         dispatch({type:'setActualRoutine', payload:{routine}})
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+    // }
 
     const setError = (error:string) => {
         dispatch({type:'setError', payload:error})
@@ -507,6 +557,10 @@ export const RoutinesProvider = ({children}:any)=>{
         <RoutinesContext.Provider
             value={{
                 ...state,
+                isLoading,
+                isLoadingMore,
+                isWaitingReqRoutines,
+                isCreatigCopy,
                 getRoutines,
                 loadMore,
                 // updateListRoutines,
@@ -516,18 +570,19 @@ export const RoutinesProvider = ({children}:any)=>{
                 createCopyRoutine,
                 setActualRoutine,
                 clearActualRoutine,
+                addNewRoutineToListRoutines,
                 createDayRoutine,
                 updateDayRoutine,
                 deleteDayRoutine,
                 createCombinedWorkouts,
                 updateCombinedWorkouts,
                 // patchWeightCombinedWorkouts,
-                deleteCombinedWorkouts,
+                // deleteCombinedWorkouts,
                 setActualCombinedWorkouts,
                 clearActualCombinedWorkouts,
-                createWorkoutInRoutine,
-                updateWorkoutInRoutine,
-                deleteWorkoutInRoutine,
+                // createWorkoutInRoutine,
+                // updateWorkoutInRoutine,
+                // deleteWorkoutInRoutine,
                 setError
             }}
         >

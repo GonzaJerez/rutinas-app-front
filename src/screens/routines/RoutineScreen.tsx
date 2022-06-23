@@ -1,25 +1,24 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Dimensions } from 'react-native'
+import React, { createRef, useContext, useEffect, useRef, useState } from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions, Animated } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
 
 import { RoutinesContext } from '../../context/routines/RoutinesContext';
 import { ThemeContext } from '../../context/theme/ThemeContext';
-import { GradientBackground } from '../../components/backgrounds/GradientBackground';
-import { HeaderTitleBack } from '../../components/headers/HeaderTitleBack';
-import { SecondaryButton } from '../../components/buttons/SecondaryButton';
-import { Swipeable } from 'react-native-gesture-handler';
-import { RightSwipe } from '../../components/swipers/RightSwipe';
 import { RootRoutinesNavigator } from '../../router/RoutinesNavigator';
-import Carousel, { Pagination } from 'react-native-snap-carousel';
+import { GradientBackground } from '../../components/backgrounds/GradientBackground';
+import { SecondaryButton } from '../../components/buttons/SecondaryButton';
 import { CarouselDayCard } from '../../components/cards/CarouselDaysCard';
 import { ButtonSubmit } from '../../components/buttons/ButtonSubmit';
+import { Day } from '../../interfaces/interfaces';
 
-const widthScreen = Dimensions.get( 'window' ).width;
+const WIDTHSCREEN = Dimensions.get( 'window' ).width;
 
 interface Props extends NativeStackScreenProps<RootRoutinesNavigator, 'RoutineScreen'> { }
 
-export const RoutineScreen = ( {navigation }: Props ) => {
+export const RoutineScreen = ( {navigation, route }: Props ) => {
+
+    const {routineCreatorIsActualUser} = route.params;
 
     const { actualRoutine, deleteDayRoutine, createDayRoutine } = useContext( RoutinesContext )
     const [activeSlide, setActiveSlide] = useState(0)
@@ -36,15 +35,15 @@ export const RoutineScreen = ( {navigation }: Props ) => {
                     <TouchableOpacity
                         onPress={()=>setIsEditing(false)}
                     >
-                        <Text style={{fontSize:16}}>Cancelar</Text>
+                        <Text style={{fontSize:16, color:colors.primary}}>Cancelar</Text>
                     </TouchableOpacity>
                 )} 
             </>
         )})
-    })
+    },[isEditing])
 
     // Modal para verificar que se quiere eliminar el día de rutina
-    const onDeleteDay = (idDay:string)=>{
+    const onDeleteDay = (idDay:string, callback:()=>void)=>{
         Alert.alert(
             'Eliminar día de rutina', 
             '¿Seguro deseas eliminar este día? Esta acción no se puede deshacer.',
@@ -54,7 +53,17 @@ export const RoutineScreen = ( {navigation }: Props ) => {
                     style:'cancel'
                 },{
                     text: 'Eliminar',
-                    onPress: ()=> deleteDayRoutine(idDay)
+                    onPress: ()=> {
+                        deleteDayRoutine(idDay)
+                        callback()
+                        setActiveSlide( prev => {
+                            if (prev > 0) {
+                                return prev - 1
+                            } else {
+                                return 0
+                            }
+                        })
+                    }
                 }
             ],{
                 cancelable: true,
@@ -62,30 +71,15 @@ export const RoutineScreen = ( {navigation }: Props ) => {
         )
     }
 
-
     return (
         <View style={ styles.container }>
             <GradientBackground />
-            {/* <View style={styles.header}>
-                <HeaderTitleBack text={ actualRoutine?.name || '' } />
-                {(isEditing) && (
-                    <TouchableOpacity
-                        style={{marginTop:20}}
-                        onPress={()=>setIsEditing(false)}
-                    >
-                        <Text style={{fontSize:16}}>Cancelar</Text>
-                    </TouchableOpacity>
-                )}
-            </View> */}
-                    
-                            
-                    
 
             <View style={ styles.cardsContainer }>
                 <Carousel
                     data={ actualRoutine?.days || [] }
                     renderItem={ ( { item, index } ) => (
-                        <CarouselDayCard 
+                        <CarouselDayCard
                             numDay={index + 1} 
                             actualDay={item} 
                             onDeleteDay={onDeleteDay}
@@ -93,7 +87,7 @@ export const RoutineScreen = ( {navigation }: Props ) => {
                             setIsEditing={setIsEditing}
                         />
                     ) }
-                    sliderWidth={ widthScreen }
+                    sliderWidth={ WIDTHSCREEN }
                     itemWidth={ 300 }
                     inactiveSlideOpacity={ 0.9 }
                     onSnapToItem={(index)=>setActiveSlide(index)}
@@ -106,12 +100,10 @@ export const RoutineScreen = ( {navigation }: Props ) => {
                         width: 10,
                         height: 10,
                         borderRadius: 5,
-                        // marginHorizontal: 8,
                         backgroundColor: colors.primary
                     }}
                     inactiveDotOpacity={0.4}
                     inactiveDotScale={0.6}
-                    
                 />
             </View>
 
@@ -125,7 +117,7 @@ export const RoutineScreen = ( {navigation }: Props ) => {
                 )
             }
 
-            {(actualRoutine?.days[activeSlide].workouts?.length !== 0)
+            {(actualRoutine?.days[activeSlide].workouts?.length !== 0 && !isEditing)
                 && (
                     <ButtonSubmit
                         text={`Comenzar entrenamiento dia ${activeSlide + 1}`}
@@ -133,10 +125,12 @@ export const RoutineScreen = ( {navigation }: Props ) => {
                         onPress={()=>navigation.navigate('TrainingScreen' as any, {
                             dayRoutine: actualRoutine?.days[activeSlide]
                         })}
-                        style={{width:350, height:70, position:'absolute', bottom:20, left:(widthScreen-350)/2}}
+                        style={{width:330, height:60, position:'absolute', bottom:60, left:(WIDTHSCREEN-330)/2}}
                     />
                 )
             }
+
+            <Text style={{...styles.creatorUser, color:theme.disabledColor}}>Creada por {(!routineCreatorIsActualUser) ? actualRoutine?.creatorUser.name : 'ti'}</Text>  
         </View>
     )
 }
@@ -156,7 +150,13 @@ const styles = StyleSheet.create( {
     },
     cardsContainer: {
         marginTop: 30,
-        paddingHorizontal: 20,
-        marginBottom:50
+        marginBottom:10,
+        // backgroundColor:'red'
     },
+    creatorUser:{
+        position:'absolute',
+        bottom:5,
+        right:10,
+        // fontStyle: 'italic'
+    }
 } );

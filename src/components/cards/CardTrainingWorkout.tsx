@@ -1,10 +1,15 @@
-import { View, Text, StyleSheet, FlatList, Animated } from 'react-native'
+import { View, Text, StyleSheet, FlatList, Animated, Image, TouchableOpacity } from 'react-native'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import Carousel from 'react-native-snap-carousel';
 import LinearGradient from 'react-native-linear-gradient';
 import { WorkoutInRoutine } from '../../interfaces/interfaces';
 import { RoutinesContext } from '../../context/routines/RoutinesContext';
 import NumsToPickerNumbers from '../NumsToPickerNumbers';
+import { calculate1RM } from '../../helpers/calculate1RM';
+import { ThemeContext } from '../../context/theme/ThemeContext';
+import { baseURL } from '../../api/routinesApi';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { InfoModeTraining } from '../modals/InfoModeTraining';
 // import { FlatList } from 'react-native-gesture-handler';
 
 // const numsToWeight:number[] = [];
@@ -25,33 +30,62 @@ interface Props {
 export const CardTrainingWorkout = ({workoutInRoutine,numActualSet,numTotalSets, shadow, onChangeWeight}:Props) => {
     
     const {actualRoutine} = useContext(RoutinesContext)
+    const {theme} = useContext(ThemeContext)
+
+    const [isOpenModalInfo, setIsOpenModalInfo] = useState(false);
 
     const numsToWeight = useMemo(()=>{
         return [...Array(1000).keys()] 
     },[])
 
     return (
-        <Animated.View style={{...styles.cardContainer, elevation:(shadow) ? 7 : 0}}>
-            <View style={styles.imageContainer}>
-                {/* Agregar imagen */}
-                <LinearGradient
-                    colors={ [ '#ccc', 'white' ] }
-                    style={ { ...StyleSheet.absoluteFillObject } }
-                    start={ { x: 1, y: 0.6 } }
-                    end={ { x: 1, y: 1.2 } }
+        <Animated.View style={{
+            ...styles.cardContainer, 
+            elevation:(shadow) ? 7 : 0,
+            backgroundColor: theme.colors.card
+        }}>
+            {(isOpenModalInfo) && (
+                <InfoModeTraining 
+                    isOpenModalInfo={isOpenModalInfo}
+                    setIsOpenModalInfo={setIsOpenModalInfo}
                 />
-                <Text style={styles.nameWorkout}>{workoutInRoutine.workout.name}</Text>
+            )}
+            <View style={styles.imageContainer}>
+                <Image 
+                    source={ { uri: `${baseURL}/api/routinesImages/workouts/${workoutInRoutine.workout.img}` } }
+                    style={styles.image}
+                    blurRadius={1}
+                />
+                <View style={styles.darkBackground}/>
+                <Text style={{...styles.nameWorkout, color:theme.whiteColor}}>{workoutInRoutine.workout.name}</Text>
             </View>
 
             <View style={styles.infoWorkout}>
-                <Text style={styles.label}>{`Serie ${numActualSet} de ${numTotalSets}`}</Text>
-                <Text style={styles.label}>{workoutInRoutine.sets[numActualSet - 1].numReps} repeticiones</Text>
-                <Text style={styles.label}>{workoutInRoutine.tool}</Text>
-                <Text style={styles.label}>Último peso: {workoutInRoutine.sets[numActualSet - 1].weight || 0} {actualRoutine?.typeUnit}</Text>
+                <Text style={{...styles.label, color:theme.colors.text}}>{`Serie ${numActualSet} de ${numTotalSets}`}</Text>
+                <Text style={{...styles.label, color:theme.colors.text}}>{workoutInRoutine.sets[numActualSet - 1].numReps} repeticiones</Text>
+                <Text style={{...styles.label, color:theme.colors.text}}>{workoutInRoutine.tool}</Text>
+                <TouchableOpacity
+                    activeOpacity={0.9} 
+                    style={{flexDirection:'row',alignItems:'center'}}
+                    onPress={()=>setIsOpenModalInfo(true)}
+                >
+                    <Text style={{...styles.label, color:theme.colors.text, marginRight:5}}>{workoutInRoutine.mode}</Text>
+                    <Icon 
+                        name='information-circle-outline'
+                        size={18}
+                        color={theme.lightText}
+                        style={{top:1}}
+                    />
+                </TouchableOpacity>
+                <Text style={{...styles.label, color:theme.colors.text}}>Último peso: {workoutInRoutine.sets[numActualSet - 1].weight || 0} {actualRoutine?.typeUnit}</Text>
+                <Text style={{...styles.maxWeight, color:theme.disabledColor}}>{`1RM : ${calculate1RM(workoutInRoutine.sets)} ${actualRoutine?.typeUnit}`}</Text>
+                {(workoutInRoutine.sets[numActualSet - 1].isDescending) && (
+                    <Text style={{...styles.label, color:theme.colors.text}}>Serie descendente</Text>
+                )}
             </View>
 
             <View style={ styles.newWeightContainer }>
-                <Text style={ styles.label }>Nuevo peso:</Text>
+                <Text style={ {...styles.label, color:theme.colors.text} }>Nuevo peso:</Text>
 
                 <View style={styles.carouselWeight}>
                     <FlatList 
@@ -71,10 +105,10 @@ export const CardTrainingWorkout = ({workoutInRoutine,numActualSet,numTotalSets,
                         // style={{backgroundColor:'red', marginTop:55, overflow:'visible'}}
                     />
                 </View>
-                <Text style={styles.label}>kg</Text>
-                <View style={{backgroundColor:'#ffffff70',position:'absolute', height:42, width:'100%',top:0}}/>
+                <Text style={{...styles.label, color:theme.lightText}}>{actualRoutine?.typeUnit}</Text>
+                <View style={{backgroundColor:theme.cardTransparent,position:'absolute', height:42, width:'100%',top:0}}/>
                 <View style={{position:'absolute', height:30, width:'100%'}}/>
-                <View style={{backgroundColor:'#ffffff70',position:'absolute', height:42, width:'100%', bottom:0}}/>
+                <View style={{backgroundColor:theme.cardTransparent,position:'absolute', height:42, width:'100%', bottom:0}}/>
             </View>
 
         </Animated.View>
@@ -87,7 +121,7 @@ const styles = StyleSheet.create({
         marginBottom:50,
         overflow:'hidden',
         // width:350,
-        height:450,
+        // height:550,
         borderRadius:25,
         backgroundColor:'white',
         shadowColor: "#000000",
@@ -99,11 +133,21 @@ const styles = StyleSheet.create({
         shadowRadius: 4.65,
     },
     imageContainer:{
-        // borderBottomWidth:1,
         height:150,
         backgroundColor:'#ccc',
         alignItems:'center',
         justifyContent:'center'
+    },
+    image:{
+        position:'absolute', 
+        width:'100%', 
+        height:'100%',
+        resizeMode:'cover',
+    },
+    darkBackground:{
+        ...StyleSheet.absoluteFillObject,
+        position:'absolute', 
+        backgroundColor:'#00000099'
     },
     nameWorkout: {
         position:'absolute',
@@ -111,23 +155,24 @@ const styles = StyleSheet.create({
         fontWeight:'500'
     },
     infoWorkout:{
-        // marginTop:30,
-        alignItems:'center'
+        alignItems:'center',
+        marginTop:10
     },
     label:{
-        fontSize:20,
+        fontSize:18,
         marginVertical:5
+    },
+    maxWeight:{
+        fontSize:18,
+        fontWeight:'500',
+        marginBottom:30
     },
     newWeightContainer:{
         flexDirection:'row',
-        // marginTop:30,
         alignItems:'center',
         justifyContent:'center',
-        // backgroundColor:'red',
-        // borderWidth:1,
         overflow:'hidden',
         height:140
-        // paddingBottom:20
     },
     buttonsWeight:{
         fontSize:22,
@@ -136,17 +181,10 @@ const styles = StyleSheet.create({
     },
     carouselWeight:{
         height:140,
-        // marginTop:60,
-        // backgroundColor:'red',
-        // top:-20
     },
     numWeight:{
         fontSize:22,
         height:HEIGHT_ITEM,
-        // alignItems:'center',
-        // justifyContent:'center',
-        // backgroundColor:'red',
-        // borderWidth:1,
         marginLeft:20,
         marginRight:10,
     },

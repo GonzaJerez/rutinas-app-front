@@ -6,10 +6,12 @@ import * as Yup from 'yup'
 import { BoxInput } from './BoxInput';
 import { ButtonSubmit } from '../buttons/ButtonSubmit';
 import { AuthContext } from '../../context/auth/AuthContext';
+import { ThemeContext } from '../../context/theme/ThemeContext';
 
 export const RegisterForm = () => {
 
     const {register} = useContext(AuthContext)
+    const {theme:{colors}} = useContext(ThemeContext)
 
     return (
         <Formik
@@ -21,7 +23,11 @@ export const RegisterForm = () => {
                 password2: ''
             }}
             onSubmit={ values => {
-                register(values)
+                register({
+                    name: values.name,
+                    email: values.email,
+                    password: values.password
+                })
             }}
             validationSchema={ Yup.object({
                 name: Yup.string()
@@ -43,19 +49,19 @@ export const RegisterForm = () => {
         >
             {
                 ({handleSubmit}) => (
-                    <View style={ styles.container }>
+                    <View style={ {...styles.container, backgroundColor:colors.card} }>
 
                         <BoxInput name='name' label='Ingrese su nombre' placeholder='Martin Gonzalez' marginTop='smallMT'/>
 
-                        <BoxInput name='email' label='Ingrese su email' placeholder='email@gmail.com' marginTop='smallMT'/>
+                        <BoxInput name='email' label='Ingrese su email' placeholder='email@gmail.com' email marginTop='smallMT'/>
 
-                        <BoxInput name='email2' label='Confirme su email' placeholder='email@gmail.com' marginTop='smallMT'/>
+                        <BoxInput name='email2' label='Confirme su email' placeholder='email@gmail.com' email marginTop='smallMT'/>
 
                         <BoxInput name='password' label='Ingrese su contraseña' placeholder='••••••' pass marginTop='smallMT'/>
 
                         <BoxInput name='password2' label='Confirme su contraseña' placeholder='••••••' pass marginTop='smallMT'/>
 
-                        <ButtonSubmit text='Registrarme' onPress={handleSubmit} type='secondary' style={ { width: 145, marginTop:30 } } />
+                        <ButtonSubmit text='Registrarme' onPress={handleSubmit} type='primary' style={ { width: 145, marginTop:30 } } />
 
                     </View>
 
@@ -68,6 +74,21 @@ export const RegisterForm = () => {
 const styles = StyleSheet.create( {
     container: {
         flex: 1,
-        marginBottom: 50
+        marginBottom: 50,
+        marginHorizontal:10,
+        alignItems:'center',
+        borderRadius:25,
+        paddingHorizontal:15,
+        paddingTop:10,
+        paddingBottom:20,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
     }
 } );

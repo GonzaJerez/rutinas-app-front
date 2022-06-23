@@ -1,9 +1,9 @@
-import { Set, WorkoutInRoutine, Workout, CombinedWorkout } from '../../interfaces/interfaces';
 import uuid from 'react-native-uuid';
+import { Set, CombinedWorkout } from '../../interfaces/interfaces';
 
 
 type ReducerActions = 
-    | {type: 'setCombinedWorkouts', payload:{combinedWorkouts:CombinedWorkout}}
+    | {type: 'setCombinedWorkouts', payload:{combinedWorkout:CombinedWorkout}}
 
     // | {type: 'addWorkout',      payload:{workout:Workout}}
     | {type: 'deleteWorkout',   payload:{idWorkout:string}}
@@ -19,7 +19,7 @@ export const workoutInRoutinesReducer = (state:CombinedWorkout, action:ReducerAc
     switch (action.type) {
         case 'setCombinedWorkouts':
             return {
-                ...action.payload.combinedWorkouts
+                ...action.payload.combinedWorkout
             }
 
         case 'deleteWorkout':
@@ -50,7 +50,8 @@ export const workoutInRoutinesReducer = (state:CombinedWorkout, action:ReducerAc
                         sets: [...workout.sets, {
                             _id: uuid.v4().toString(),
                             numReps: '',
-                            weight: ''
+                            weight: '',
+                            isDescending: false
                         }]
                     }    
                 )

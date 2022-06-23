@@ -1,13 +1,13 @@
 import { useContext, useState } from "react"
 import { RoutinesContext } from "../context/routines/RoutinesContext";
 
-export const useDayRoutine = (idRoutine:string) => {
+export const useDayRoutine = (idRoutine:string, numDay:string='1') => {
     
     const [creatingDay, setCreatingDay] = useState(false)
     const {createDayRoutine} = useContext(RoutinesContext)
 
     const [days, setDays] = useState({
-        numActualDay: '1',
+        numActualDay: numDay,
     })
 
     const onCreateDay = async()=>{

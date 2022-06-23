@@ -4,14 +4,18 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { ThemeContext } from '../context/theme/ThemeContext';
 import { AuthNavigator } from './AuthNavigator';
-import { PrivateNavigator } from './PrivateNavigator';
+import { PrivateNavigator, RootPrivateNavigator } from './PrivateNavigator';
 import { AuthContext } from '../context/auth/AuthContext';
 import { IntroApp } from '../components/IntroApp';
+import { RoutinesContext } from '../context/routines/RoutinesContext';
+import { LoaderRequest } from '../components/modals/LoaderRequest';
+import { GroupsContext } from '../context/groups/GroupsContext';
+import { StatusBar } from 'react-native';
 
 
 export type RootStackNavigation = {
     AuthNavigator: undefined,
-    PrivateNavigator: undefined
+    PrivateNavigator: undefined;
 }
 
 
@@ -19,8 +23,9 @@ const Stack = createNativeStackNavigator<RootStackNavigation>();
 export const NativeStackNavigation = () => {
 
     const { theme } = useContext( ThemeContext )
-    // Agarrar token del asyncStorage
-    const {status} = useContext(AuthContext)
+    const {status, isWaitingReqLogin} = useContext(AuthContext)
+    const {isWaitingReqRoutines} = useContext(RoutinesContext)
+    const {isWaitingReqGroup} = useContext(GroupsContext)
 
     if (status === 'checking') {
         return (
@@ -32,6 +37,19 @@ export const NativeStackNavigation = () => {
         <NavigationContainer
             theme={ theme }
         >
+            <StatusBar 
+                translucent 
+                backgroundColor={'transparent'} 
+                barStyle={(theme.currentTheme === 'light')
+                    ? 'dark-content'
+                    : 'light-content'
+                }
+                networkActivityIndicatorVisible
+            />
+            {(isWaitingReqRoutines || isWaitingReqLogin || isWaitingReqGroup) 
+                && <LoaderRequest />
+            }
+
             <Stack.Navigator
                 screenOptions={{
                     headerShown: false

@@ -7,14 +7,14 @@ import { ThemeContext } from '../context/theme/ThemeContext';
 import { View } from 'react-native';
 import { AccountNavigator } from './AccountNavigator';
 import { RoutinesNavigator } from './RoutinesNavigator';
-import { MovementsNavigator } from './MovementsNavigator';
+import { SocialNavigator } from './SocialNavigator';
 
 
 
 export type RootTabNavigator = {
     RoutinesNavigator:  undefined;
     AccountNavigator:   undefined;
-    MovementsNavigator: undefined;
+    SocialNavigator: undefined;
 }
 
 
@@ -26,12 +26,9 @@ export const TabNavigator = () => {
 
     return (
         <Tab.Navigator
-            barStyle={ { backgroundColor: theme.colors.background, height:60 } }
+            barStyle={ { backgroundColor: theme.colors.background, height:70 } }
             activeColor={ theme.colors.primary }
-            sceneAnimationEnabled={ true }
-            
-            
-            
+            sceneAnimationEnabled={ true }  
             screenOptions={ ( { route } ) => ( {
                 tabBarIcon: ( { color, focused } ) => {
                     let iconName: string = '';
@@ -41,7 +38,7 @@ export const TabNavigator = () => {
                             iconName = 'barbell-outline'
                             break;
 
-                        case 'MovementsNavigator':
+                        case 'SocialNavigator':
                             iconName = 'people-outline'
                             break;
 
@@ -63,7 +60,7 @@ export const TabNavigator = () => {
             labeled={ false }
         >
             <Tab.Screen name="RoutinesNavigator" component={ RoutinesNavigator } />
-            <Tab.Screen name="MovementsNavigator" component={ MovementsNavigator } />
+            <Tab.Screen name="SocialNavigator" component={ SocialNavigator } />
             <Tab.Screen name="AccountNavigator" component={ AccountNavigator } />
         </Tab.Navigator>
 

@@ -1,10 +1,16 @@
-import { routinesApi } from "../../api/routinesApi";
+import { routinesApi, routinesApiFormData } from "../../api/routinesApi";
 import { UpdateEmail, UpdatePassword, UpdateProfile } from "../../interfaces/interfaces";
 
-interface UpdateUserProps {
+export interface UpdateUserProps {
     uid:    string;
     token:  string;
-    body:   UpdateProfile | UpdateEmail | UpdatePassword
+    body:   UpdateEmail | UpdatePassword
+}
+
+export interface UpdateUserProfileProps {
+    uid:    string;
+    token:  string;
+    body:   UpdateProfile
 }
 
 export const updateUserApi = async({uid,body,token}:UpdateUserProps)=>{
@@ -14,6 +20,18 @@ export const updateUserApi = async({uid,body,token}:UpdateUserProps)=>{
         method:'PUT',
         token,
         body
+    })
+
+    return resp;
+}
+
+export const updateUserProfileApi = async({uid,body,token}:UpdateUserProfileProps)=>{
+
+    const resp = await routinesApiFormData({
+        endpoint: `/users/${uid}`,
+        method:'PUT',
+        token,
+        form:body
     })
 
     return resp;

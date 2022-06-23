@@ -4,10 +4,11 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { ThemeContext } from '../../context/theme/ThemeContext'
 
 interface Props {
-    onChange:   React.Dispatch<React.SetStateAction<string>>
+    onChange:        React.Dispatch<React.SetStateAction<string>>;
+    setIsSearching?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-export const SearchInput = ({onChange}:Props) => {
+export const SearchInput = ({onChange,setIsSearching}:Props) => {
 
     const {theme} = useContext(ThemeContext)
     const [ textValue, setTextValue ] = useState( '' )
@@ -18,7 +19,7 @@ export const SearchInput = ({onChange}:Props) => {
     useEffect( () => {
         const timer = setTimeout( () => {
             onChange( textValue )
-        }, 500 )
+        }, 300 )
 
         return () => {
             clearInterval( timer )
@@ -26,12 +27,15 @@ export const SearchInput = ({onChange}:Props) => {
     }, [ textValue ] )
 
   return (
-    <View style={{...styles.searchContainer, borderColor:theme.disabledColor, backgroundColor:theme.colors.background}}>
+    <View style={{...styles.searchContainer, backgroundColor:theme.colors.card}}>
         <TextInput 
-            style={styles.searchInput}
+            style={{...styles.searchInput, color:theme.colors.text}}
             placeholder='Buscar'
+            placeholderTextColor={theme.placeholderColor}
             value={textValue}
             onChangeText={(value)=>setTextValue(value)}
+            onFocus={()=>(setIsSearching) && setIsSearching(true)}
+            onBlur={()=>(setIsSearching) && setIsSearching(false)}
         />
         <Icon 
             name='search-outline'
@@ -45,9 +49,8 @@ export const SearchInput = ({onChange}:Props) => {
 
 const styles = StyleSheet.create({
     searchContainer:{
-        borderWidth:1,
+        // borderWidth:1,
         width:350,
-        // marginTop:30,
         borderRadius:20,
         flexDirection:'row',
         alignItems:'center',
@@ -59,7 +62,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.29,
         shadowRadius: 4.65,
 
-        elevation: 7,
+        elevation: 5,
     },
     searchInput:{
         flex:1,

@@ -4,24 +4,25 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import { ThemeContext } from '../../context/theme/ThemeContext'
 
 interface Props {
-    size: 'sizeRoutine' | 'sizeDay';
-    id: string;
-    onDelete: (id: string) => void;
+    size?:      'sizeRoutine' | 'sizeDay';
+    text?:      string;
+    id:         string;
+    onDelete:   (id: string) => void;
 }
 
-export const RightSwipe = ({size, id, onDelete }:Props) => {
+export const RightSwipe = ({id,text='Eliminar', onDelete }:Props) => {
 
     const {theme} = useContext(ThemeContext)
     const {colors} = theme;
 
     return (
-        <View style={ { ...styles.container, ...styles[size] } }>
+        <View style={ { ...styles.container} }>
             <TouchableOpacity
                 style={{...styles.button, backgroundColor:theme.errors}}
                 onPress={()=>onDelete(id)}
             >
-                <Icon name='trash-outline' size={30} color={colors.text}/>
-                <Text style={{...styles.buttonsText, color:colors.text}}>Eliminar</Text>
+                <Icon name='trash-outline' size={28} color={colors.text}/>
+                <Text style={{color:colors.text}}>{text}</Text>
             </TouchableOpacity>
         </View>
     )
@@ -32,14 +33,8 @@ const styles = StyleSheet.create( {
         width: 80,
         flexDirection:'row',
         opacity: 0.85,
-        marginRight:20
-        // marginVertical:10
-    },
-    sizeRoutine: {
-        height:180
-    },
-    sizeDay: {
-        height:100
+        marginRight:20,
+        marginBottom:15
     },
     button: {
         padding: 5,
@@ -51,7 +46,4 @@ const styles = StyleSheet.create( {
         borderTopRightRadius: 25,
         borderBottomRightRadius: 25,
     },
-    buttonsText: {
-        fontSize: 16,
-    }
 } );

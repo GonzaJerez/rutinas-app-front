@@ -1,6 +1,19 @@
 import { routinesApi } from "../../api/routinesApi";
 import { LoginData, RegisterData } from '../../interfaces/interfaces';
 
+export interface SendEmailProps {
+    emailUser:          string;
+}
+
+export interface SecurityCodeProps {
+    emailUser:          string;
+    securityCode:       string;
+}
+
+export interface NewPasswordProps {
+    emailUser:          string;
+    newPassword:        string;
+}
 
 export const loginApi = async (body:LoginData) => {
     const resp = await routinesApi( {
@@ -25,8 +38,8 @@ export const googleSignInApi = async(idToken:string)=>{
 export const registerApi = async(body:RegisterData)=>{
     const resp = await routinesApi({
         endpoint: '/users',
-        body,
         method: 'POST',
+        body,
     })
 
     return resp;
@@ -37,6 +50,36 @@ export const validateAuth = async(token:string)=>{
         endpoint: '/auth',
         method: 'GET',
         token
+    })
+
+    return resp;
+}
+
+export const sendEmailToRecoverPasswordApi = async(body:SendEmailProps) => {
+    const resp = await routinesApi({
+        endpoint: '/auth/sendEmail',
+        method:'POST',
+        body
+    })
+
+    return resp;
+}
+
+export const validateSecurityCodeApi = async(body:SecurityCodeProps) => {
+    const resp = await routinesApi({
+        endpoint: '/auth/securityCode',
+        method:'POST',
+        body
+    })
+
+    return resp;
+}
+
+export const renewPasswordApi = async(body:NewPasswordProps) => {
+    const resp = await routinesApi({
+        endpoint: '/auth/renewPassword',
+        method:'POST',
+        body
     })
 
     return resp;

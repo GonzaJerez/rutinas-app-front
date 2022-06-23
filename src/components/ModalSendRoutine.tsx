@@ -1,10 +1,12 @@
 import React, { useContext, useState } from 'react'
-import { View, Text, StyleSheet, Modal, TouchableWithoutFeedback, Dimensions, FlatList, TouchableOpacity, Alert, Image } from 'react-native'
-import Icon from 'react-native-vector-icons/Ionicons'
+import { View, Text, StyleSheet, Modal, TouchableWithoutFeedback, Dimensions, TouchableOpacity } from 'react-native'
+
 import { ThemeContext } from '../context/theme/ThemeContext'
-import { useSearch } from '../hooks/useSearch'
-import { Routine, User } from '../interfaces/interfaces';
+import { Routine} from '../interfaces/interfaces'
+import { useSearchUsersOrGroups } from '../hooks/useSearchUsersOrGroups'
 import { SearchInput } from './form/SearchInput'
+import { SearchGroups } from './SearchGroups'
+import { SearchUsers } from './SearchUsers'
 
 interface Props {
     routine: Routine;
@@ -20,31 +22,19 @@ export const ModalSendRoutine = ({routine,isModalOpen,setIsModalOpen}:Props) => 
     const {colors} = theme;
 
     const [userSearch, setUserSearch] = useState('')
+    const [activeSlide, setActiveSlide] = useState(0)
+      
+    const {
+        searchState,
+        onToggleSelect, 
+        onCloseModal, 
+        onConfirmSend
+    } = useSearchUsersOrGroups({
+        routine,
+        word: userSearch,
+        setIsModalOpen
+    })
     
-    const {resultSearch} = useSearch('Users', userSearch)
-
-    const onSendRoutine = () => {
-        Alert.alert(
-            'Enviar rutina a tal usuario',
-            'Se enviará una copia de la rutina, usted seguirá teniendo la original en su cuenta',
-            [
-                {
-                    text:'Cancelar',
-                    onPress:()=>console.log('cancelado'),
-                },
-                {
-                    text:'Enviar',
-                    onPress:()=>{
-                        console.log('enviando...')
-                        setIsModalOpen(false)
-                    }
-                }
-            ],
-            {
-                cancelable:true,
-            }
-        )
-    }
 
     return (
         <Modal
@@ -55,47 +45,97 @@ export const ModalSendRoutine = ({routine,isModalOpen,setIsModalOpen}:Props) => 
             <View style={styles.modalBackground}>
                 <TouchableWithoutFeedback 
                     style={{flex:1, borderWidth:1}}
-                    onPress={()=>setIsModalOpen(false)}
+                    onPress={onCloseModal}
                 >
                     <View style={{width:WIDTHSCREEN, flex:1}}/>
                 </TouchableWithoutFeedback>
 
                 <View style={{...styles.modalContainer, backgroundColor:colors.background}}>
-                    <Text style={styles.modalTitle}>Enviar "{routine.name}"</Text>
+                    <Text style={{...styles.modalTitle, color:colors.text}}>Enviar "{routine.name}"</Text>
                     <SearchInput onChange={setUserSearch}/>
-                    <View style={styles.listFoundUsers}>
-                        <FlatList 
-                            data={resultSearch as User[]}
-                            // data={[1,2,3]}
-                            renderItem={({item})=>(
 
-                                <TouchableOpacity 
-                                    style={styles.foundUser}
-                                    onPress={onSendRoutine}
-                                >
-                                    <View style={styles.dataUser}>
-                                        <View style={{...styles.imgUser, borderColor:theme.disabledColor}}>
-                                        <Image 
-                                            source={(item?.img) ? {uri:item.img} : require('../assets/user-not-img.png')}
-                                            style={{...styles.image, borderColor:colors.primary}}
-                                        />
-                                        </View>
-                                        <View>
-                                            <Text style={styles.nameUser}>{item.name}</Text>
-                                            <Text>{item.email}</Text>
-                                        </View>
-                                    </View>
-                                    <View>
-                                        <Icon 
-                                            name='chevron-forward-outline'
-                                            size={30}
-                                        />
-                                    </View>
-                                    
-                                </TouchableOpacity>
-                            )}
-                        />
+                    <View style={styles.headerTopTab}>
+                        <TouchableOpacity
+                            onPress={()=>setActiveSlide(0)}
+                            style={{
+                                ...styles.labelContainer,
+                                borderColor: theme.colors.primary,
+                                borderBottomWidth: (activeSlide === 0) ? 1 : 0
+                            }}
+                        >
+                            <Text style={{
+                                ...styles.labelHeader,
+                                color: (activeSlide === 0) ? theme.colors.primary : theme.disabledColor
+                                }}
+                            >
+                                Usuarios
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={()=>setActiveSlide(1)}
+                            style={{
+                                ...styles.labelContainer,
+                                borderColor: theme.colors.primary,
+                                borderBottomWidth: (activeSlide === 1) ? 1 : 0
+                            }}
+                        >
+                            <Text style={{
+                                ...styles.labelHeader,
+                                color: (activeSlide === 1) ? theme.colors.primary : theme.disabledColor
+                                }}
+                            >
+                                Grupos
+                            </Text>
+                        </TouchableOpacity>
                     </View>
+
+                    <View style={styles.listFoundUsers}>
+                        {/* Mensaje para que usuario empiece a escribir */}
+                        {(userSearch === '' && searchState.selectedGroups.length === 0 && searchState.selectedUsers.length === 0) && (
+                            <View style={styles.emptyList}>
+                                <Text style={{color:theme.lightText}}>Empieza a escribir para buscar usuarios</Text>
+                            </View>
+                        )}
+                        {/* Dependiendo de en que slide se encuentra es la lista de resultados que muestra */}
+                        {(activeSlide === 0)
+                            ? (
+                                <SearchUsers 
+                                    onToggleSelect={onToggleSelect}
+                                    userSearch={userSearch}
+                                    searchState={searchState}
+                                />
+                            )
+                            : (
+                                <SearchGroups 
+                                    onToggleSelect={onToggleSelect}
+                                    userSearch={userSearch}
+                                    searchState={searchState}
+                                />
+                            )
+                        }
+                    </View>
+
+                    {( searchState.selectedUsers.length > 0 && activeSlide === 0)
+                        && (
+                            <TouchableOpacity
+                                onPress={()=>onConfirmSend(searchState.selectedUsers,'Users')}
+                                style={{...styles.buttonSend, backgroundColor:theme.colors.primary}}
+                            >
+                                <Text style={{color:theme.whiteColor, fontSize:16}}>Enviar</Text>
+                            </TouchableOpacity>
+                        )
+                    }
+                    {
+                       ( searchState.selectedGroups.length > 0 && activeSlide === 1)
+                       && (
+                           <TouchableOpacity
+                               onPress={()=>onConfirmSend(searchState.selectedGroups,'Groups')}
+                               style={{...styles.buttonSend, backgroundColor:theme.colors.primary}}
+                           >
+                               <Text style={{color:theme.whiteColor, fontSize:16}}>Enviar</Text>
+                           </TouchableOpacity>
+                       ) 
+                    }
                 </View>
 
             </View>
@@ -112,7 +152,7 @@ const styles = StyleSheet.create({
     },
     modalContainer:{
         width:'100%',
-        height:400,
+        height:500,
         borderTopLeftRadius:25,
         borderTopRightRadius:25,
         alignItems:'center',
@@ -120,41 +160,43 @@ const styles = StyleSheet.create({
     },
     modalTitle:{
         fontSize:20,
-        marginBottom:20
+        marginBottom:20,
+        fontWeight:'500'
+    },
+    headerTopTab:{
+        marginTop:15,
+        width:'100%',
+        flexDirection:'row',
+        alignItems:'center',
+        justifyContent:'space-evenly'
+    },
+    labelContainer:{
+        width:100,
+        height:35,
+        // backgroundColor:'red',
+        alignItems:'center',
+        // justifyContent:'center'
+    },
+    labelHeader:{
+        fontSize:18
+    },
+    activeHeader:{
+        borderBottomWidth:1
     },
     listFoundUsers:{
         width:'100%',
         marginTop:20,
-        flex:1
+        flex:1,
+        // backgroundColor:'red'
     },
-    foundUser:{
-        flexDirection:'row',
-        alignItems:'center',
-        justifyContent:'space-between',
-        height:70,
-        paddingHorizontal:15
-    },
-    dataUser:{
-        flexDirection:'row',
-        alignItems:'center',
-        // backgroundColor:'red',
-        flex:1
-    },
-    imgUser:{
-        borderWidth:1,
-        borderRadius:100,
-        width:50,
+    buttonSend:{
+        width:'100%',
         height:50,
-        marginRight:20
+        justifyContent:'center',
+        alignItems:'center'
     },
-    image:{
-        width:50,
-        height:50,
-        borderRadius:100,
-        // borderWidth:2
-    },
-    nameUser:{
-        fontSize:18,
-        fontWeight:'500'
+    emptyList:{
+        alignItems:'center',
+        marginTop:30
     }
 });

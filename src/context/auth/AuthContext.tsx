@@ -22,7 +22,8 @@ interface AuthContextProps {
     logout:             ()=>void;
     updateUser:         (body:UpdateEmail | UpdatePassword) => Promise<void>
     updateProfileUser:  (body: UpdateProfile) => Promise<void>
-    setIsWaitingReqLogin: React.Dispatch<React.SetStateAction<boolean>>
+    setIsWaitingReqLogin: React.Dispatch<React.SetStateAction<boolean>>;
+    clearErrors:           () => void
 }
 
 export const AuthContext = createContext({} as AuthContextProps)
@@ -80,8 +81,8 @@ export const AuthProvider = ({children}:any) => {
                     token,
                     user
                 }})
+                await AsyncStorage.setItem( 'token', token )
             }
-            await AsyncStorage.setItem( 'token', token )
         } catch (error) {
             console.log(error);
         }
@@ -112,6 +113,7 @@ export const AuthProvider = ({children}:any) => {
         setIsWaitingReqLogin(true)
         try {
             const {token, user, msg} = await registerApi(body)
+            
             if (msg) {
                 dispatch({type:'addError', payload:msg})
             } else {
@@ -119,8 +121,9 @@ export const AuthProvider = ({children}:any) => {
                     token: token,
                     user: user
                 }})
+                await AsyncStorage.setItem( 'token', token )
             }
-            await AsyncStorage.setItem( 'token', token )
+
             setIsWaitingReqLogin(false)
         } catch (error) {
             console.log(error);
@@ -180,6 +183,10 @@ export const AuthProvider = ({children}:any) => {
         }
     }
 
+    const clearErrors = ()=>{
+        dispatch({type:'addError',payload:''})
+    }
+
     return(
         <AuthContext.Provider value={{
             ...state,
@@ -192,7 +199,8 @@ export const AuthProvider = ({children}:any) => {
             logout,
             updateUser,
             updateProfileUser,
-            setIsWaitingReqLogin
+            setIsWaitingReqLogin,
+            clearErrors
         }}>
             {children}
         </AuthContext.Provider>

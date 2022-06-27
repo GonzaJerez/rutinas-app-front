@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, Text } from 'react-native'
 import { Formik } from 'formik';
 import * as Yup from 'yup'
 
@@ -7,11 +7,18 @@ import { BoxInput } from './BoxInput';
 import { ButtonSubmit } from '../buttons/ButtonSubmit';
 import { AuthContext } from '../../context/auth/AuthContext';
 import { ThemeContext } from '../../context/theme/ThemeContext';
+import { useEffect } from 'react';
 
 export const RegisterForm = () => {
 
-    const {register} = useContext(AuthContext)
-    const {theme:{colors}} = useContext(ThemeContext)
+    const {errorMsg, register, clearErrors} = useContext(AuthContext)
+    const {theme} = useContext(ThemeContext)
+    const {colors} = theme;
+
+    // Elimina los errores almacenados anteriormente cuando carga este componente
+    useEffect(()=>{
+        clearErrors()
+    },[])
 
     return (
         <Formik
@@ -60,6 +67,13 @@ export const RegisterForm = () => {
                         <BoxInput name='password' label='Ingrese su contraseña' placeholder='••••••' pass marginTop='smallMT'/>
 
                         <BoxInput name='password2' label='Confirme su contraseña' placeholder='••••••' pass marginTop='smallMT'/>
+
+                        {
+                            (errorMsg !== '') && 
+                                <View style={{marginTop: 10}}>
+                                    <Text style={{color:theme.errors, fontSize: 16}}>{errorMsg}</Text>
+                                </View>
+                        }
 
                         <ButtonSubmit text='Registrarme' onPress={handleSubmit} type='primary' style={ { width: 145, marginTop:30 } } />
 

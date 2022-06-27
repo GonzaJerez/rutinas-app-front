@@ -26,7 +26,12 @@ export const LoginForm = () => {
 
     const {navigate} = useNavigation<NativeStackNavigationProp<RootAuthNavigator, "LoginScreen">>()
 
-    const {googleSignIn, login, errorMsg} = useContext(AuthContext)
+    const {errorMsg, googleSignIn, login, clearErrors} = useContext(AuthContext)
+
+    // Elimina los errores almacenados anteriormente cuando carga este componente
+    useEffect(()=>{
+        clearErrors()
+    },[])
 
     useEffect(()=>{
         GoogleSignin.configure({
@@ -90,7 +95,7 @@ export const LoginForm = () => {
                         {
                             (errorMsg !== '') && 
                                 <View style={{marginBottom: 10, marginTop: -10}}>
-                                    <Text style={{color:'red', fontSize: 16}}>{errorMsg}</Text>
+                                    <Text style={{color:theme.errors, fontSize: 16}}>{errorMsg}</Text>
                                 </View>
                         }
                         <ButtonSubmit 

@@ -2,10 +2,10 @@ import { NewPasswordProps, SecurityCodeProps, SendEmailProps } from '../helpers/
 import { CreateGroup, RoutineCreateState, Set, PutGroup, UpdateProfile, UpdateEmail, UpdatePassword, CombinedWorkout, Day, DefaultRoutine } from '../interfaces/interfaces';
 
 // DESARROLLO
-// export const baseURL = 'http://192.168.100.18:8080'
+export const baseURL = 'http://192.168.100.18:8080'
 
 // PRUEBAS DESARROLLO
-export const baseURL = 'https://routines-app.herokuapp.com'
+// export const baseURL = 'https://routines-app.herokuapp.com'
 
 // PARA CUANDO HAGA DEPLOY
 /* export const baseURL = (process.env.NODE_ENV !== 'production')

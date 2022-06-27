@@ -5,7 +5,7 @@ export const defaultRoutines:DefaultRoutine[] = [
         _id: '1',
         name: 'Torso - Pierna',
         typeUnit: 'kg',
-        img: 'routine1.png',
+        img: 'routine8.png',
         timer: 60000,
         days: [
             {
@@ -762,7 +762,7 @@ export const defaultRoutines:DefaultRoutine[] = [
         _id: '2',
         name: "Tiron - Empuje 3 dias",
         typeUnit: "kg",
-        img: "routine1.png",
+        img: "routine3.png",
         timer: 60000,
         days: [
             {
@@ -1266,7 +1266,7 @@ export const defaultRoutines:DefaultRoutine[] = [
         _id: '3',
         name: "Hipertrofia 4 dias",
         typeUnit: "kg",
-        img: "routine1.png",
+        img: "routine13.png",
         timer: 60000,
         days: [
             {
@@ -2260,7 +2260,7 @@ export const defaultRoutines:DefaultRoutine[] = [
         _id: '4',
         name: "Hipertrofia en casa",
         typeUnit: "kg",
-        img: "routine1.png",
+        img: "routine7.png",
         timer: 60000,
         days: [
             {
@@ -3017,7 +3017,7 @@ export const defaultRoutines:DefaultRoutine[] = [
         _id: '5',
         name: "Enfoque piernas",
         typeUnit: "kg",
-        img: "routine1.png",
+        img: "routine9.png",
         timer: 60000,
         days: [
             {

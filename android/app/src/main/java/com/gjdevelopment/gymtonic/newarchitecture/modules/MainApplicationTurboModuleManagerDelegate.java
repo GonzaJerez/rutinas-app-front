@@ -1,4 +1,4 @@
-package com.rutinasapp.newarchitecture.modules;
+package com.gjdevelopment.gymtonic.newarchitecture.modules;
 
 import com.facebook.jni.HybridData;
 import com.facebook.react.ReactPackage;

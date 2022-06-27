@@ -34,7 +34,7 @@ export const ModalNewRoutine = ({isOpenModalNewRoutine,setIsOpenModalNewRoutine}
     const onViewDefaultRoutines = ()=>{
         clearActualRoutine()
         setIsOpenModalNewRoutine(false)
-        navigate('DefaultRoutines')
+        navigate('DefaultRoutinesScreen')
     }
 
     return (

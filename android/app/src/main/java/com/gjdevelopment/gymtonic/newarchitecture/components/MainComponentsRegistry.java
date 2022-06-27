@@ -1,4 +1,4 @@
-package com.rutinasapp.newarchitecture.components;
+package com.gjdevelopment.gymtonic.newarchitecture.components;
 
 import com.facebook.jni.HybridData;
 import com.facebook.proguard.annotations.DoNotStrip;

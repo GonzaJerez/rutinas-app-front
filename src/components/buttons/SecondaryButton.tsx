@@ -20,7 +20,7 @@ export const SecondaryButton = ({text, style,disabled=false, onPress}:Props) => 
             onPress={onPress}
             disabled={disabled}
         >
-            <Text style={ { ...styles.textButton, color: (disabled) ? theme.colors.background : colors.primary } }>{text}</Text>
+            <Text style={ { ...styles.textButton, color: (disabled) ? theme.disabledColor : colors.primary } }>{text}</Text>
         </TouchableOpacity>
     )
 }

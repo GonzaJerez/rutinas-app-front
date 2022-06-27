@@ -83,7 +83,7 @@ export const useFormRoutine = (navigation: NativeStackNavigationProp<RootPrivate
             }
         } 
         else {
-            const resp = await createRoutine(form)  
+            const resp = await createRoutine(form)
             if(!resp){
                 navigation.replace('ChooseMuscleScreen',{})
                 setError('')

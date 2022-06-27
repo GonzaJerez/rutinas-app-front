@@ -18,7 +18,7 @@ interface Props {
     state: CombinedWorkout;
     isEditing: boolean;
     setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
-    changeWorkout: (tool: string, idWorkout: string) => void;
+    changeWorkout: (value: string, field:'tool' | 'mode', idWorkout: string) => void;
     deleteWorkout: (idWorkout: string) => void;
     addSet: (idWorkout: string) => void;
     changeSet: (idWorkout: string, idSet: string, form: Set) => void;
@@ -77,7 +77,7 @@ export const WorkoutFormCard = ({
                         blurRadius={1}
                     />
                     <View style={styles.darkBackground}/>
-                    <Text style={ styles.title }>{item.workout.name}</Text>
+                    <Text style={ {...styles.title, color:theme.whiteColor} }>{item.workout.name}</Text>
                     {(isEditing) && (
                         <FloatDeleteIcon 
                             onPress={()=>deleteWorkout(item._id)}
@@ -92,7 +92,7 @@ export const WorkoutFormCard = ({
                         {/* Picker */ }
                         <Picker
                             selectedValue={ item.tool }
-                            onValueChange={ ( value ) => changeWorkout( value, item._id ) }
+                            onValueChange={ ( value ) => changeWorkout( value, 'tool', item._id ) }
                             style={ { width: 170, color:colors.text } }
                             dropdownIconColor={theme.lightText}
                             
@@ -119,7 +119,7 @@ export const WorkoutFormCard = ({
                             {/* Picker */ }
                             <Picker
                                 selectedValue={ item.tool }
-                                onValueChange={ ( value ) => changeWorkout( value, item._id ) }
+                                onValueChange={ ( value ) => changeWorkout( value, 'mode', item._id ) }
                                 style={ { width: 170, color:colors.text } }
                                 dropdownIconColor={theme.lightText}
                             >
@@ -159,7 +159,7 @@ export const WorkoutFormCard = ({
                         onPress={addOtherWorkout}
                         style={{...styles.addWorkoutButton, backgroundColor:theme.lightPrimary}}
                     >
-                        <Text style={{color:colors.text}}>Combinar con otro ejercicio</Text>
+                        <Text style={{color:theme.whiteColor}}>Combinar con otro ejercicio</Text>
                     </TouchableOpacity>
                 )
             }
@@ -225,7 +225,7 @@ const styles = StyleSheet.create( {
     },
     title: {
         fontSize: 25,
-        color:'#eee'
+        textAlign:'center'
     },
     pickerContainer: {
         flexDirection: 'row',

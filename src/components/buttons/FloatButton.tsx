@@ -14,6 +14,7 @@ export const FloatButton = ({onPress}:Props) => {
 
     return (
         <TouchableOpacity
+            activeOpacity={0.8}
             style={ {
                 ...styles.floatButton,
                 backgroundColor:colors.primary,

@@ -35,7 +35,7 @@ export const RoutineScreen = ( {navigation, route }: Props ) => {
                     <TouchableOpacity
                         onPress={()=>setIsEditing(false)}
                     >
-                        <Text style={{fontSize:16, color:colors.primary}}>Cancelar</Text>
+                        <Text style={{fontSize:16, color:(theme.currentTheme === 'dark') ? theme.colors.primary : theme.whiteColor}}>Cancelar</Text>
                     </TouchableOpacity>
                 )} 
             </>

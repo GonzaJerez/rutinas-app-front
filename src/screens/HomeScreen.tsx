@@ -24,7 +24,7 @@ export const HomeScreen = ({navigation}:Props) => {
             headerLeft: ()=>(
                 <View style={styles.headerContainer}>
                     <LogoApp size='small'/>
-                    <Text style={{...styles.headerTitle,color:theme.whiteColor}}>Routines app</Text>
+                    <Text style={{...styles.headerTitle,color:theme.whiteColor}}>Gym Tonic</Text>
                 </View>
             )
         })
@@ -62,20 +62,18 @@ export const HomeScreen = ({navigation}:Props) => {
 const styles = StyleSheet.create({
     headerContainer:{
         flexDirection:'row', 
-        alignItems:'center'
+        alignItems:'center',
     },
     headerTitle:{
         fontSize:21, 
         fontWeight:'500', 
-        marginLeft:10
+        marginLeft:20
     },
     routines:{
         flex: 1,
         alignItems:'center',
-        // paddingTop:30
     },
     listRoutines:{
-        // marginTop: 30,
-        // paddingHorizontal:30
+
     }
 });

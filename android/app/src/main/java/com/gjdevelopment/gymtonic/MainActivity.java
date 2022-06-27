@@ -1,6 +1,13 @@
-package com.rutinasapp;
+// package com.gymtonic;
+package com.gjdevelopment.gymtonic;
+
+import android.os.Bundle; // here
 
 import com.facebook.react.ReactActivity;
+
+// react-native-splash-screen >= 0.3.1
+import org.devio.rn.splashscreen.SplashScreen; // here
+
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
 import android.os.Bundle;
@@ -27,7 +34,8 @@ public class MainActivity extends ReactActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(null);
+    SplashScreen.show(this);  // here
+    super.onCreate(savedInstanceState);
   }
 
   public static class MainActivityDelegate extends ReactActivityDelegate {

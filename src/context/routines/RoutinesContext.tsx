@@ -1,7 +1,10 @@
-import React, { createContext, useContext, useReducer, useState } from "react";
+import React, { createContext, useContext, useEffect, useReducer, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import NetInfo from "@react-native-community/netinfo";
+
 import { AuthContext } from "../auth/AuthContext";
 import { RoutinesReducer, StateProps, initialState } from "./RoutinesReducer";
-import { CombinedWorkout, Day, GetRoutines, Routine, RoutineCreateState, RoutineResponse, WorkoutInRoutine } from '../../interfaces/interfaces';
+import { CombinedWorkout, Day, GetRoutines, Routine, RoutineCreateState, RoutineResponse, WorkoutInRoutine, DefaultRoutine } from '../../interfaces/interfaces';
 import { CreateCopyProps, createCopyRoutineApi, createRoutineInDB, CreateRoutineProps, deleteRoutineInDB, DeleteRoutineProps, getRoutinesFromDB, GetRoutinesProps, updateRoutineInDB, UpdateRoutineProps } from "../../helpers/routines/routinesApis";
 import { createDayRoutineInDB, CreateDayRoutineProps, deleteDayRoutineInDB, DeleteDayRoutineProps, updateDayRoutineInDB, UpdateDayRoutineProps } from "../../helpers/routines/dayRoutineApis";
 import { createWorkoutInRoutineInDB, createWorkoutInRoutineProps, deleteWorkoutInRoutineInDB, DeleteWorkoutInRoutineProps, updateWorkoutInRoutineInDB, UpdateWorkoutInRoutineProps } from "../../helpers/routines/workoutInRoutineApis";
@@ -14,7 +17,7 @@ interface ContextProps extends StateProps {
     isCreatigCopy:          boolean;
     getRoutines:            ({ isLoadMore }: {isLoadMore?: boolean | undefined;}) => Promise<void>
     loadMore:               () => Promise<void>;
-    createRoutine:          (form: RoutineCreateState) => Promise<{msg:string} | undefined>
+    createRoutine:          (form: RoutineCreateState | DefaultRoutine) => Promise<{msg:string} | undefined>
     updateRoutine:          (idRoutine: string, form: RoutineCreateState) => Promise<{msg: string} | undefined>
     deleteRoutine:          (idRoutine: string) => Promise<void>
     createCopyRoutine:      (idRoutine: string) => Promise<void>
@@ -41,7 +44,7 @@ export const RoutinesContext = createContext({} as ContextProps)
 
 export const RoutinesProvider = ({children}:any)=>{
 
-    const {token} = useContext(AuthContext)
+    const {token, setIsModalOfflineOpen} = useContext(AuthContext)
     const [isLoading, setIsLoading] = useState(false)
     const [isLoadingMore, setIsLoadingMore] = useState(false)
     const [isWaitingReqRoutines, setIsWaitingReq] = useState(false)
@@ -51,13 +54,24 @@ export const RoutinesProvider = ({children}:any)=>{
     const limit = 10;
 
     const [state, dispatch] = useReducer(RoutinesReducer, initialState)
+
+    /**
+     * En cada cambio del listRoutines lo va a actualizar en el AsyncStorage
+     * Lo unico que actualizo manual es cuando se elimina la última rutina y no queda ninguna,
+     * ya que aca valido que no venga vacía (porque siempre va a venir vacía la primera vez
+     * que se renderiza)
+     */
+    useEffect(()=>{
+        if (state.listRoutines.length === 0 ) return;
+        AsyncStorage.setItem( 'routines', JSON.stringify(state.listRoutines) )
+    },[state.listRoutines])
     
     /**
      * Carga las rutinas del usuario en pantalla principal
      */
     const getRoutines = async({isLoadMore}:{isLoadMore?: boolean})=>{
         if (!token) return;
-
+        const routinesStored = await AsyncStorage.getItem('routines') || ''
         
         if (!isLoadMore) {
             setIsLoading(true)
@@ -74,14 +88,18 @@ export const RoutinesProvider = ({children}:any)=>{
             if(msg){
                 return dispatch({type:'setError', payload:msg})
             }
-
+            
             dispatch({type:'addRoutinesToListRoutines', payload:{routines}})
-
+            
             setPage( page + 1)
-            setIsLoading(false)
-            setIsLoadingMore(false)
+            
         } catch(err){
             console.log(err);
+            dispatch({type:'addRoutinesToListRoutines', payload:{routines:JSON.parse(routinesStored)}})
+        }
+        finally{
+            setIsLoading(false)
+            setIsLoadingMore(false)
         }
     }
 
@@ -89,19 +107,22 @@ export const RoutinesProvider = ({children}:any)=>{
      * Carga más rutinas con un lazy load
      */
     const loadMore = async()=>{
-        // if (state.listRoutines.length === limit * (page - 1) ) {
-            setIsLoadingMore(true)
-            await getRoutines({isLoadMore:true})
-        // }
+        const network = await NetInfo.fetch()
+        if(!network.isConnected){
+            return;
+        }
+        
+        setIsLoadingMore(true)
+        await getRoutines({isLoadMore:true})
     }
 
     /**
      * Crea rutina en DB y la setea como la rutina actual
      */ 
-    const createRoutine = async(form:RoutineCreateState)=>{
+    const createRoutine = async(form:RoutineCreateState | DefaultRoutine)=>{
         if(!token) return;
         setIsWaitingReq(true)
-
+        
         const args:CreateRoutineProps = {
             body: form,
             token
@@ -111,14 +132,20 @@ export const RoutinesProvider = ({children}:any)=>{
             const {routine, msg}:RoutineResponse = await createRoutineInDB(args)
             
             if(msg){
-                // return dispatch({type:'setError', payload:msg})
+                console.log(msg);
                 return {msg};
             }
             
             dispatch({type:'setActualRoutine', payload:{routine}})
+            dispatch({type:'addNewRoutine', payload:{routine}})
             setAddedRoutines( addedRoutines + 1)
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
+            return {msg: ''}
         }
         finally{
             setIsWaitingReq(false)
@@ -147,8 +174,14 @@ export const RoutinesProvider = ({children}:any)=>{
             }
 
             dispatch({type: 'updateRoutine', payload:{routine}})
+            // await AsyncStorage.setItem( 'routines', JSON.stringify(state.listRoutines) )
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
+            return {msg: ''}
         }
         finally{
             setIsWaitingReq(false)
@@ -165,12 +198,26 @@ export const RoutinesProvider = ({children}:any)=>{
         const args:DeleteRoutineProps = {idRoutine,token}
 
         try {
-            await deleteRoutineInDB(args)
+            const resp = await deleteRoutineInDB(args)
+            if (!resp) {
+                throw new Error('req undefined');
+            }
+            
             dispatch({type: 'deleteRoutine', payload:{idRoutine}})
-            setIsWaitingReq(false)
+
+            if (state.listRoutines.length === 1) {
+                await AsyncStorage.setItem( 'routines','')
+            }
 
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
+        }
+        finally{
+            setIsWaitingReq(false)
         }
     }
 
@@ -195,9 +242,14 @@ export const RoutinesProvider = ({children}:any)=>{
             
             dispatch({type:'addNewRoutine', payload:{routine}})
             setAddedRoutines( addedRoutines + 1)
+            // await AsyncStorage.setItem( 'routines', JSON.stringify(state.listRoutines) )
             
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
         finally{
             setIsCreatigCopy(false)
@@ -244,9 +296,14 @@ export const RoutinesProvider = ({children}:any)=>{
 
             dispatch({type:'setActualRoutine', payload:{routine}})
             dispatch({type:'updateRoutine', payload:{routine}})
+            // await AsyncStorage.setItem( 'routines', JSON.stringify(state.listRoutines) )
             return routine;
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
         finally{
             setIsWaitingReq(false)
@@ -285,9 +342,14 @@ export const RoutinesProvider = ({children}:any)=>{
 
             dispatch({type:'setActualRoutine', payload:{routine}})
             dispatch({type:'updateRoutine', payload:{routine}})
+            // await AsyncStorage.setItem( 'routines', JSON.stringify(state.listRoutines) )
 
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
     }
 
@@ -311,8 +373,13 @@ export const RoutinesProvider = ({children}:any)=>{
 
             dispatch({type:'setActualRoutine', payload:{routine}})
             dispatch({type:'updateRoutine', payload:{routine}})
+            // await AsyncStorage.setItem( 'routines', JSON.stringify(state.listRoutines) )
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
     } 
 
@@ -341,9 +408,14 @@ export const RoutinesProvider = ({children}:any)=>{
 
             dispatch({type:'setActualRoutine', payload:{routine}})
             dispatch({type:'updateRoutine', payload:{routine}})
+            // await AsyncStorage.setItem( 'routines', JSON.stringify(state.listRoutines) )
             
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
         finally{
             setIsWaitingReq(false)
@@ -376,9 +448,14 @@ export const RoutinesProvider = ({children}:any)=>{
             
             dispatch({type:'setActualRoutine', payload:{routine}})
             dispatch({type:'updateRoutine', payload:{routine}})
+            // await AsyncStorage.setItem( 'routines', JSON.stringify(state.listRoutines) )
 
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
         finally{
             setIsWaitingReq(false)

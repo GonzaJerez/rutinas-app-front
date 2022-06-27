@@ -3,14 +3,17 @@ import { createContext } from "react";
 import { Group, GroupsResponse, CreateGroup, GetGroups, PutGroup, User, RoutineResponse, GetRoutines, Routine } from '../../interfaces/interfaces';
 import { AuthContext } from '../auth/AuthContext';
 import { addUsersToGroupApi, createGroupApi, CreateGroupProps, deleteGroupApi, DeleteGroupProps, deleteUsersFromGroupApi, getGroupsApi, GetGroupsProps, GroupsUsersProps, putGroupApi, PutGroupProps, GetRoutinesGroupsProps, getRoutinesInGroupsApi, leaveGroupApi } from '../../helpers/groups/groupsApis';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 
 interface ContextProps {
     listGroups:             Group[];
     listRoutinesInGroup:    Routine[];
     actualGroup:            Group | null;
-    isLoadingRoutinesGroup: boolean;
+    isLoadingGroups:        boolean;
+    isLoadingMore:          boolean;
     isWaitingReqGroup:      boolean;
-    getGroups:              () => Promise<void>;
+    getGroups:              ({ isLoadMore }: {isLoadMore?: boolean | undefined;}) => Promise<void>
     setGroupActual:         (group: Group) => void
     getRoutinesByGroup:     () => Promise<void>
     clearRoutinesInGroup:   () => void
@@ -28,20 +31,42 @@ export const GroupsContext = createContext({} as ContextProps)
 
 export const GroupsProvider = ({children}:any) => {
 
-    const {token} = useContext(AuthContext)
+    const {token, setIsModalOfflineOpen} = useContext(AuthContext)
     const [listGroups, setListGroups] = useState<Group[]>([])
     const [listRoutinesInGroup, setListRoutinesInGroup] = useState<Routine[]>([])
     const [actualGroup, setActualGroup] = useState<Group | null>(null)
     const [pageGroups, setPageGroups] = useState(1)
     const [pageGroupRoutines, setPageGroupRoutines] = useState(1)
-    const [isLoadingRoutinesGroup, setIsLoadingRoutineGroup] = useState(false)
+    const [isLoadingGroups, setIsLoadingGroups] = useState(false)
+    const [isLoadingMore, setIsLoadingMore] = useState(false)
     const [isWaitingReqGroup, setIsWaitingReqGroup] = useState(false);
     const limit = 10;
 
+    /**
+     * En cada cambio del listRoutines lo va a actualizar en el AsyncStorage
+     * Lo unico que actualizo manual es cuando se elimina la última rutina y no queda ninguna,
+     * ya que aca valido que no venga vacía (porque siempre va a venir vacía la primera vez
+     * que se renderiza)
+     */
+    useEffect(()=>{
+        if (listGroups.length === 0 ) return;
+        AsyncStorage.setItem( 'groups', JSON.stringify(listGroups) )
+    },[listGroups])
 
-    const getGroups = async()=>{
+    useEffect(()=>{
+        if (listRoutinesInGroup.length === 0 ) return;
+        AsyncStorage.setItem( 'routinesGroup', JSON.stringify(listRoutinesInGroup) )
+    },[listRoutinesInGroup])
+
+
+    const getGroups = async({isLoadMore}:{isLoadMore?: boolean})=>{
         if (!token) return;
-        setIsLoadingRoutineGroup(true)
+        const groupsStored = await AsyncStorage.getItem('groups') || ''
+
+        if (!isLoadMore) {
+            setIsLoadingGroups(true)
+        }
+
         const args:GetGroupsProps = {token,page:pageGroups,limit}
 
         try {
@@ -53,10 +78,15 @@ export const GroupsProvider = ({children}:any) => {
 
             setListGroups([...listGroups, ...groups])
             setPageGroups( pageGroups + 1 )
-            setIsLoadingRoutineGroup(false)
+            // await AsyncStorage.setItem( 'groups', JSON.stringify([...listGroups, ...groups]) )
 
         } catch (err) {
             console.log(err);
+            setListGroups(JSON.parse(groupsStored))
+        }
+        finally{
+            setIsLoadingGroups(false)
+            setIsLoadingMore(false)
         }
     }
 
@@ -66,7 +96,10 @@ export const GroupsProvider = ({children}:any) => {
 
     const getRoutinesByGroup = async()=>{
         if (!token || !actualGroup) return;
-        setIsLoadingRoutineGroup(true)
+        const routinesGroupStored = await AsyncStorage.getItem('routinesGroup') || ''
+
+        setIsLoadingGroups(true)
+
         const args:GetRoutinesGroupsProps = {token,idGroup: actualGroup?._id}
 
         try {
@@ -75,12 +108,15 @@ export const GroupsProvider = ({children}:any) => {
             if (msg) {
                 console.log(msg);
             }
-
+            
             setListRoutinesInGroup(routines)
             setPageGroupRoutines(pageGroupRoutines + 1)
-            setIsLoadingRoutineGroup(false)
         } catch (err) {
             console.log(err);
+            setListRoutinesInGroup(JSON.parse(routinesGroupStored))
+        }
+        finally{
+            setIsLoadingGroups(false)
         }
     }
 
@@ -92,8 +128,14 @@ export const GroupsProvider = ({children}:any) => {
      * Carga más grupos con un lazy load
      */
      const loadMoreGroups = async()=>{
+        const network = await NetInfo.fetch()
+        if(!network.isConnected){
+            return;
+        }
+
         if (listGroups.length === limit * (pageGroups - 1) ) {
-            await getGroups()
+            setIsLoadingMore(true)
+            await getGroups({isLoadMore:true})
         }
     }
 
@@ -125,6 +167,10 @@ export const GroupsProvider = ({children}:any) => {
 
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
     }
 
@@ -149,6 +195,10 @@ export const GroupsProvider = ({children}:any) => {
 
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
     }
 
@@ -166,8 +216,16 @@ export const GroupsProvider = ({children}:any) => {
             setListGroups(listGroups.filter( group => group._id.toString() !== actualGroup._id.toString() && group ))
             setActualGroup(null)
 
+            if (listGroups.length === 1) {
+                await AsyncStorage.setItem( 'groups','')
+            }
+
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
     }
 
@@ -192,6 +250,10 @@ export const GroupsProvider = ({children}:any) => {
 
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
     }
 
@@ -216,6 +278,10 @@ export const GroupsProvider = ({children}:any) => {
 
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
     }
 
@@ -235,8 +301,16 @@ export const GroupsProvider = ({children}:any) => {
             setActualGroup(null)
             setIsWaitingReqGroup(false)
 
+            if (listGroups.length === 1) {
+                await AsyncStorage.setItem( 'groups','')
+            }
+
         } catch (err) {
             console.log(err);
+            const network = await NetInfo.fetch()
+            if (!network.isConnected) {
+                setIsModalOfflineOpen(true)
+            }
         }
     }
 
@@ -246,7 +320,8 @@ export const GroupsProvider = ({children}:any) => {
                 listGroups,
                 listRoutinesInGroup,
                 actualGroup,
-                isLoadingRoutinesGroup,
+                isLoadingGroups,
+                isLoadingMore,
                 isWaitingReqGroup,
                 getGroups,
                 setGroupActual,

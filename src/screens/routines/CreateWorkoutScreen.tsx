@@ -56,14 +56,14 @@ export const CreateWorkoutScreen = ( { route, navigation }: Props ) => {
                             <TouchableOpacity
                                 onPress={()=>onSaveWorkout()}
                             >
-                                <Text style={{color:theme.colors.primary}}>Guardar</Text>
+                                <Text style={{color:(theme.currentTheme === 'dark') ? theme.colors.primary : theme.whiteColor}}>Guardar</Text>
                             </TouchableOpacity>
                         )
                         : (
                             <TouchableOpacity
                                 onPress={()=>setIsEditing(false)}
                             >
-                                <Text style={{color:theme.colors.primary}}>Cancelar</Text>
+                                <Text style={{color:(theme.currentTheme === 'dark') ? theme.colors.primary : theme.whiteColor}}>Cancelar</Text>
                             </TouchableOpacity>
                         )
                     }
@@ -85,8 +85,8 @@ export const CreateWorkoutScreen = ( { route, navigation }: Props ) => {
             keyboardVerticalOffset={170}
             style={{flex:1}}
         >
+            <GradientBackground />
             <ScrollView>
-                <GradientBackground />
                 <View style={ styles.container }>
 
                     {(error !== '') && (

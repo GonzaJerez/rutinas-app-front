@@ -56,7 +56,7 @@ export const CardMovement = ({movement}:Props) => {
                     </View>
                 )))
                 : (
-                    <View key={movement.from._id} style={{...styles.rowMovement}}>
+                    <View key={movement.from._id} style={{...styles.rowMovement, marginTop:10}}>
                         <View style={styles.imgContainer}>
                             <Image 
                                 style={styles.image}
@@ -71,8 +71,8 @@ export const CardMovement = ({movement}:Props) => {
                             />
                         </View>
                         <View style={{flex:1}}>
-                            <Text style={styles.nameUser}>{movement.from.name}</Text>
-                            <Text>{movement.from.email}</Text>
+                            <Text style={{...styles.nameUser, color:theme.colors.text}}>{movement.from.name}</Text>
+                            <Text style={{color:theme.lightText}}>{movement.from.email}</Text>
                         </View>
                     </View>
                 )

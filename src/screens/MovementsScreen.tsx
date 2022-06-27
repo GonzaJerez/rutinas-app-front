@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react'
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet, FlatList, ActivityIndicator, Text, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { ThemeContext } from '../context/theme/ThemeContext'
@@ -9,13 +9,15 @@ import { GradientBackground } from '../components/backgrounds/GradientBackground
 import { SearchInput } from '../components/form/SearchInput';
 import { CardMovement } from '../components/cards/CardMovement';
 import { ListCardPlaceholder } from '../components/placeholders/ListCardPlaceholder';
+import { ScreenEmpty } from '../components/ScreenEmpty';
 
 export const MovementsScreen = () => {
 
     const {theme} = useContext(ThemeContext)
-    const {listMovements, isLoading, loadMoreMovements} = useContext(MovementsContext)
+    const {listMovements, isLoading, isLoadingMore, loadMoreMovements, getMovements} = useContext(MovementsContext)
 
     const [movementSearch, setMovementSearch] = useState('')
+    const [isRefreshing, setIsRefreshing] = useState(false)
     const {resultsSearchMovements} = useSearchMovements(movementSearch)
     
 
@@ -24,6 +26,10 @@ export const MovementsScreen = () => {
             <GradientBackground />
 
             <SearchInput onChange={setMovementSearch}/>
+
+            {(listMovements.length === 0) && (
+                <ScreenEmpty text='No hay movimientos aún'/>
+            )}
             
             <View style={{...styles.movementsContainer, borderColor:theme.placeholderColor}}>
                 {(isLoading)
@@ -31,9 +37,30 @@ export const MovementsScreen = () => {
                     : (<FlatList 
                             data={(movementSearch === '') ? listMovements : resultsSearchMovements}
                             renderItem={({item})=>(<CardMovement movement={item}/>)}
-                            // showsVerticalScrollIndicator={ false }
                             onEndReached={ loadMoreMovements }
-                            
+                            ListHeaderComponent={()=>(<View style={{height:20}}/>)}
+                            ListFooterComponent={()=>(
+                                <View style={styles.footer}>
+                                    {(isLoadingMore)
+                                        ? (
+                                            <ActivityIndicator 
+                                                color={theme.colors.primary}
+                                            />
+                                        )
+                                        : (listMovements.length > 0) && (
+                                                <Text style={{color:theme.disabledColor}}>No hay más resultados</Text>
+                                            )
+                                    }
+                                </View>
+                            )}
+                            refreshControl={
+                                <RefreshControl 
+                                    refreshing={isRefreshing}
+                                    onRefresh={()=>getMovements({isLoadMore:false})}
+                                    progressBackgroundColor={theme.colors.background}
+                                    colors={[theme.colors.primary]}
+                                />
+                            }
                         />
                     )
                 }
@@ -51,8 +78,12 @@ const styles = StyleSheet.create({
     },
     movementsContainer:{
         width:'100%',
-        marginTop:30,
-        marginBottom:50,
+        marginTop:10,
+        // marginBottom:50,
         overflow:'hidden'
     },
+    footer:{
+        height:50,
+        alignItems:'center',
+    }
 });

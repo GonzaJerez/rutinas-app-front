@@ -1,5 +1,5 @@
 import { routinesApi } from "../../api/routinesApi"
-import { GetRoutines, Routine, RoutineCreateState } from "../../interfaces/interfaces";
+import { GetRoutines, Routine, RoutineCreateState, DefaultRoutine } from '../../interfaces/interfaces';
 import { deleteIdsRoutineCreation } from "../deleteIdsRoutineCreation";
 
 export interface GetRoutinesProps {
@@ -10,7 +10,7 @@ export interface GetRoutinesProps {
 }
 
 export interface CreateRoutineProps {
-    body:   RoutineCreateState;
+    body:   RoutineCreateState | DefaultRoutine;
     token:  string;
 }
 
@@ -25,6 +25,10 @@ export interface DeleteRoutineProps {
 
 export interface CreateCopyProps {
     idRoutine:  string;
+    token:      string;
+}
+
+export interface GetDefaultRoutinesProps{
     token:      string;
 }
 

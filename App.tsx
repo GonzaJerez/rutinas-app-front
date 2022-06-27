@@ -23,7 +23,7 @@ const App = () => {
 
     useEffect(() => {
         bootstrap()
-        //   .then(() => setLoading(false))
+          .then(() => console.log('noti'))
           .catch(console.error);
       }, []);
 

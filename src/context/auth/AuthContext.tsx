@@ -14,6 +14,8 @@ interface AuthContextProps {
     token:              string | null,
     errorMsg:           string | null,
     isWaitingReqLogin:  boolean;
+    isModalOfflineOpen: boolean;
+    setIsModalOfflineOpen: React.Dispatch<React.SetStateAction<boolean>>
     login:              ({ email, password }: LoginData) => Promise<void>,
     register:           ({ email, password, name }: RegisterData) => Promise<void>,
     googleSignIn:       (idToken: string) => Promise<void>
@@ -28,28 +30,42 @@ export const AuthContext = createContext({} as AuthContextProps)
 export const AuthProvider = ({children}:any) => {
 
     const [state, dispatch] = useReducer(AuthReducer, initialState)
+    const [isModalOfflineOpen, setIsModalOfflineOpen] = useState(false)
     const [isWaitingReqLogin, setIsWaitingReqLogin] = useState(false)
 
     useEffect( () => {
         checkToken()
+        // AsyncStorage.clear()
     }, [] )
 
     const checkToken = async () => {
-        const tokenStored = await AsyncStorage.getItem( 'token' );
+        const tokenStored = await AsyncStorage.getItem( 'token' ) || '';
+        const userStored = await AsyncStorage.getItem( 'user' ) || '';
+        // console.log(await AsyncStorage.getAllKeys());
+        
+
         if ( !tokenStored ) return dispatch( { type: 'logout' } );
 
-        const {user,token,msg}:UserResponse = await validateAuth(tokenStored)
-        if (msg) {
-            return dispatch({type:'logout'})
-        }
-
-        await AsyncStorage.setItem( 'token', token )
-        dispatch( {
-            type: 'login', payload: {
-                token: token,
-                user: user
+        try {
+            const {user,token,msg}:UserResponse = await validateAuth(tokenStored)
+            if (msg) {
+                return dispatch({type:'logout'})
             }
-        } )
+
+            await AsyncStorage.setItem( 'token', token )
+            await AsyncStorage.setItem( 'user', JSON.stringify(user) )
+            
+            dispatch( {
+                type: 'login', payload: {
+                    token: token,
+                    user: user
+                }
+            } )
+            
+        } catch (err) {
+            console.log(err);
+            dispatch({type:'offline',payload:{user:JSON.parse(userStored),token:tokenStored}})
+        }
     }
     
 
@@ -115,7 +131,7 @@ export const AuthProvider = ({children}:any) => {
 
     const logout = async()=>{
         dispatch({type:'logout'})
-        await AsyncStorage.removeItem( 'token' )
+        await AsyncStorage.clear()
     }
 
     const updateUser = async(body:UpdateEmail | UpdatePassword)=> {
@@ -168,6 +184,8 @@ export const AuthProvider = ({children}:any) => {
         <AuthContext.Provider value={{
             ...state,
             isWaitingReqLogin,
+            isModalOfflineOpen,
+            setIsModalOfflineOpen,
             login,
             register,
             googleSignIn,

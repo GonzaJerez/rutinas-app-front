@@ -30,7 +30,7 @@ export const SocialTopNavigator = () => {
                 tabBarPressOpacity: 0.1,
                 tabBarPressColor: theme.colors.card,
                 tabBarLabelStyle: {fontSize:14},
-                tabBarIndicatorStyle:{backgroundColor:theme.colors.primary},
+                tabBarIndicatorStyle:{backgroundColor:(theme.currentTheme === 'dark') ? theme.colors.primary : theme.whiteColor},
             } }
         >
             <Tab.Screen name="MovementsScreen" component={ MovementsScreen } options={ { title: 'Movimientos' } } />

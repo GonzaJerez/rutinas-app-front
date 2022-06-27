@@ -7,7 +7,7 @@ type ReducerActions =
 
     // | {type: 'addWorkout',      payload:{workout:Workout}}
     | {type: 'deleteWorkout',   payload:{idWorkout:string}}
-    | {type: 'changeWorkout',   payload:{idWorkout:string, tool:string}}
+    | {type: 'changeWorkout',   payload:{idWorkout:string, value:string, field:'tool' | 'mode'}}
 
     | {type: 'addSet',          payload:{idWorkout:string}}
     | {type: 'deleteSet',       payload:{idWorkout:string, idSet:string}}
@@ -35,7 +35,7 @@ export const workoutInRoutinesReducer = (state:CombinedWorkout, action:ReducerAc
                     ? workout
                     : {
                         ...workout,
-                        tool: action.payload.tool
+                        [action.payload.field]: action.payload.value
                     }
                 )
             }

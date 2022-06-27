@@ -15,7 +15,7 @@ export const LogoApp = ({size='medium', style,backgroundLight}:Props) => {
         sizeLogo = 35
     }
     if (size === 'big') {
-        sizeLogo = 200
+        sizeLogo = 210
     }
 
     const {theme} = useContext(ThemeContext)
@@ -53,5 +53,6 @@ const styles = StyleSheet.create( {
     },
     image:{
         borderRadius: 100,
+        opacity:1
     }
 } )

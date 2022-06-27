@@ -36,7 +36,7 @@ export const CardRoutine = ( { routine }: Props ) => {
                 backgroundColor:theme.colors.card,
             } }
             onPress={toRoutine}
-            activeOpacity={0.9}
+            activeOpacity={0.95}
         >
             <View style={styles.imageContainer}>
                 <Image 
@@ -54,7 +54,7 @@ export const CardRoutine = ( { routine }: Props ) => {
                     { routine.name }
                 </Text>
                 <Text style={{color:theme.lightText}}>Dias: { routine.days.length }</Text>
-                {(!routineCreatorIsActualUser) && (<Text style={{color:theme.disabledColor}}>{`Creado por ${routine.creatorUser.name}`}</Text>)}
+                {(!routineCreatorIsActualUser && routine.creatorUser.name) && (<Text style={{color:theme.disabledColor}}>{`Creado por ${routine.creatorUser.name}`}</Text>)}
             </View>
 
         </TouchableOpacity>

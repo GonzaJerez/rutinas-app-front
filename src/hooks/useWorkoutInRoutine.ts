@@ -63,8 +63,8 @@ export const useWorkoutInRoutine = (workout:Workout, combinedWorkouts:CombinedWo
         dispatch({type:'addWorkout', payload:{workout:otherWorkout}})
     } */
 
-    const changeWorkout = (tool:string, idWorkout:string)=>{
-        dispatch({type:'changeWorkout', payload:{tool, idWorkout}})
+    const changeWorkout = (value:string, field:'tool' | 'mode', idWorkout:string)=>{
+        dispatch({type:'changeWorkout', payload:{value, field, idWorkout}})
     }
 
     const deleteWorkout = (idWorkout:string)=>{

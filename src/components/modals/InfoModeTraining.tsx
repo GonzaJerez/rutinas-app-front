@@ -154,6 +154,15 @@ const styles = StyleSheet.create( {
         position:'absolute',
         bottom:50,
         borderRadius:100,
-        padding:12
+        padding:12,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 5,
     },
 } )

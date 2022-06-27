@@ -1283,6 +1283,11 @@
   "resolved" "https://registry.npmjs.org/@react-native-community/eslint-plugin/-/eslint-plugin-1.2.0.tgz"
   "version" "1.2.0"
 
+"@react-native-community/netinfo@^9.0.0":
+  "integrity" "sha512-oodeVNdL0IT/Fv0cpL7CdxnnESNKiiAzf29yhvGSJBvuFmyHxvmYOtBIX27HWG9tQU8Yzeh+MyQcKBCNmkva+Q=="
+  "resolved" "https://registry.npmjs.org/@react-native-community/netinfo/-/netinfo-9.0.0.tgz"
+  "version" "9.0.0"
+
 "@react-native-google-signin/google-signin@^7.2.2":
   "integrity" "sha512-FqSJAEYz+SNeIOyokFX3e7nbBgK0js/Hye0YNY+cV0Qf1NxKw1vRt2MQB3kfuVWFCb+OSovgQCl6W8dhYvsblw=="
   "resolved" "https://registry.npmjs.org/@react-native-google-signin/google-signin/-/google-signin-7.2.2.tgz"
@@ -6248,7 +6253,7 @@
     "prop-types" "^15.7.2"
     "yargs" "^16.1.1"
 
-"react-native@*", "react-native@^0.0.0-0 || 0.60 - 0.68 || 1000.0.0", "react-native@>=0.42.0", "react-native@>=0.55", "react-native@>=0.57", "react-native@>=0.57.0", "react-native@>=0.64.0", "react-native@0.68.1":
+"react-native@*", "react-native@^0.0.0-0 || 0.60 - 0.68 || 1000.0.0", "react-native@>=0.42.0", "react-native@>=0.55", "react-native@>=0.57", "react-native@>=0.57.0", "react-native@>=0.59", "react-native@>=0.64.0", "react-native@0.68.1":
   "integrity" "sha512-5gfvslo5NO2Ece2k/q41eVOK3ca4u1QAOf+qM+auvOiUA4/QR5Yr0WfSGbRpUr2GaFgv7qP11F4+elCravg7uQ=="
   "resolved" "https://registry.npmjs.org/react-native/-/react-native-0.68.1.tgz"
   "version" "0.68.1"

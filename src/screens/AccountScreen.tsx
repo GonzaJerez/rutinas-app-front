@@ -7,7 +7,6 @@ import { ThemeContext } from '../context/theme/ThemeContext'
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootAccountNavigator } from '../router/AccountNavigator'
 import { AuthContext } from '../context/auth/AuthContext'
-import { NameApp } from '../components/headers/NameApp'
 
 interface Props extends NativeStackScreenProps<RootAccountNavigator,'AccountScreen'>{}
 

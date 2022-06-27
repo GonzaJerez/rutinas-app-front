@@ -6,14 +6,14 @@ import { Day } from '../interfaces/interfaces';
 import { RoutineScreen } from '../screens/routines/RoutineScreen';
 import { HomeScreen } from '../screens/HomeScreen';
 import { DayRoutineScreen } from '../screens/routines/DayRoutineScreen';
-import { DefaultRoutines } from '../screens/routines/DefaultRoutines';
+import { DefaultRoutinesScreen } from '../screens/routines/DefaultRoutinesScreen';
 
 
 export type RootRoutinesNavigator = {
     HomeScreen:              undefined;
     RoutineScreen:           { routineCreatorIsActualUser: boolean },
     DayRoutineScreen:        {numDay:number, day:Day, typeUnit: 'kg' | 'lb', timer:number, isMovement?:boolean}
-    DefaultRoutines:         undefined;
+    DefaultRoutinesScreen:    undefined;
 }
 
 const Stack = createNativeStackNavigator<RootRoutinesNavigator>();
@@ -42,7 +42,7 @@ export const RoutinesNavigator = () => {
             <Stack.Screen name="HomeScreen" component={ HomeScreen } options={{title:''}}/>
             <Stack.Screen name="RoutineScreen" component={ RoutineScreen } />
             <Stack.Screen name="DayRoutineScreen" component={ DayRoutineScreen } />
-            <Stack.Screen name="DefaultRoutines" component={ DefaultRoutines } />
+            <Stack.Screen name="DefaultRoutinesScreen" component={ DefaultRoutinesScreen } options={{title:'Rutinas predeterminadas'}}/>
         </Stack.Navigator>
     )
 }

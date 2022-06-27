@@ -67,11 +67,11 @@ export const RoutinesReducer = (state:StateProps, action:ActionsProps):StateProp
             return {
                 ...state,
                 // actualRoutine: null,
-                listRoutines: state.listRoutines.map( routine => routine._id !== action.payload.routine._id 
-                    ? routine
-                    : action.payload.routine
-                )
-                // .sort( (a,b) => b.modifyDate - a.modifyDate)
+                // listRoutines: state.listRoutines.map( routine => routine._id !== action.payload.routine._id 
+                //     ? routine
+                //     : action.payload.routine
+                // )
+                listRoutines: [action.payload.routine, ...state.listRoutines.filter( routine => routine._id !== action.payload.routine._id)]
             }
 
         case 'deleteRoutine':

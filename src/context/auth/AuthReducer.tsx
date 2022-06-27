@@ -14,6 +14,7 @@ type AuthAuthentication =
     // | {type: 'googleSignIn', payload: {idToken:string}}
     | {type: 'updateUser', payload:{user:User}}
     | {type: 'logout'}
+    | {type: 'offline', payload:{user:User, token:string}}
 
 
 export const initialState: AuthState = {
@@ -53,6 +54,14 @@ export const AuthReducer = (state:AuthState, action:AuthAuthentication):AuthStat
                 user: null,
                 token: null,
                 status: 'not-authenticated'
+            }
+
+        case 'offline':
+            return {
+                ...state,
+                status:'authenticated',
+                user: action.payload.user,
+                token: action.payload.token
             }
     
         default:

@@ -38,10 +38,6 @@ export const ChooseMuscleScreen = ( { navigation, route }: Props ) => {
     const { onCreateDay, creatingDay, days, onChangeDay } = useDayRoutine(actualRoutine?._id || '', numDay)
     
     const onSubmit = ()=>{
-        if(!actualRoutine) return;
-        if (!isEditingWorkout) {
-            addNewRoutineToListRoutines(actualRoutine)
-        }
         navigation.goBack()
     }
 
@@ -79,7 +75,7 @@ export const ChooseMuscleScreen = ( { navigation, route }: Props ) => {
                         <TouchableOpacity
                             onPress={onCancel} 
                         >
-                            <Text style={{color:theme.colors.primary}}>Cancelar</Text>
+                            <Text style={{color:(theme.currentTheme === 'dark') ? theme.colors.primary : theme.whiteColor}}>Cancelar</Text>
                         </TouchableOpacity>
                     )}
                 </>

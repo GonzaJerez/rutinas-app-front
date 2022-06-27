@@ -48,7 +48,11 @@ export const CreateGroupScreen = ({navigation}:Props) => {
                     disabled={(form.name === '')}
                 >
                     <Text style={{
-                        color:(form.name === '') ? theme.disabledColor : colors.primary,
+                        color:(form.name === '') 
+                            ? theme.disabledColor 
+                            : (theme.currentTheme === 'dark') 
+                                ? colors.primary
+                                : theme.whiteColor,
                         fontSize:16
                     }}>
                         Crear

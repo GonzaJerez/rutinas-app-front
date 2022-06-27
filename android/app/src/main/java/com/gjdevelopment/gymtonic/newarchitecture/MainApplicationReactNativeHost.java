@@ -1,4 +1,4 @@
-package com.rutinasapp.newarchitecture;
+package com.gjdevelopment.gymtonic.newarchitecture;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
@@ -19,9 +19,9 @@ import com.facebook.react.fabric.CoreComponentsRegistry;
 import com.facebook.react.fabric.EmptyReactNativeConfig;
 import com.facebook.react.fabric.FabricJSIModuleProvider;
 import com.facebook.react.uimanager.ViewManagerRegistry;
-import com.rutinasapp.BuildConfig;
-import com.rutinasapp.newarchitecture.components.MainComponentsRegistry;
-import com.rutinasapp.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
+import com.gjdevelopment.gymtonic.BuildConfig;
+import com.gjdevelopment.gymtonic.newarchitecture.components.MainComponentsRegistry;
+import com.gjdevelopment.gymtonic.newarchitecture.modules.MainApplicationTurboModuleManagerDelegate;
 import java.util.ArrayList;
 import java.util.List;
 

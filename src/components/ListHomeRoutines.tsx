@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef } from "react";
-import { Dimensions, View, FlatList, Text, Alert, StyleSheet, Animated, ActivityIndicator } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { Dimensions, View, FlatList, Text, Alert, StyleSheet, Animated, ActivityIndicator, RefreshControl } from 'react-native';
 import { Swipeable } from "react-native-gesture-handler";
 
 import { GroupsContext } from '../context/groups/GroupsContext';
@@ -24,32 +24,12 @@ interface Props {
 
 export const ListHomeRoutines = ( { routines, swipeLeftUsable=true,isAdminRoutineGroup=true, loadMore }: Props ) => {
     
-    const {isLoading,isLoadingMore, isCreatigCopy, deleteRoutine} = useContext(RoutinesContext)
-    const {isLoadingRoutinesGroup} = useContext(GroupsContext)
+    const {isLoading,isLoadingMore, isCreatigCopy, deleteRoutine, getRoutines} = useContext(RoutinesContext)
+    const {isLoadingGroups} = useContext(GroupsContext)
+    const [isRefreshing, setIsRefreshing] = useState(false)
     const {theme} = useContext(ThemeContext)
 
     const marginTop = useRef(new Animated.Value(20)).current;
-
-    // Animacion para cuando creo copia de rutina
-/*     const moveTopAnimation = ()=>{
-        Animated.timing(
-            marginTop, {
-                toValue:210,
-                useNativeDriver: false,
-                duration: 200
-            }
-        ).start()
-    }
-
-    useEffect(()=>{
-        Animated.timing(
-            marginTop, {
-                toValue:20,
-                useNativeDriver:false,
-                duration:10
-            }
-        ).start()
-    },[routines]) */
 
     // Modal para verificar que se quiere eliminar la rutina
     const onDeleteRoutine = (idRoutine:string)=>{
@@ -107,7 +87,7 @@ export const ListHomeRoutines = ( { routines, swipeLeftUsable=true,isAdminRoutin
         );
     };
 
-    if(isLoading || isLoadingRoutinesGroup){
+    if(isLoading || isLoadingGroups){
         return (
             <ListCardPlaceholder />
         )
@@ -136,6 +116,14 @@ export const ListHomeRoutines = ( { routines, swipeLeftUsable=true,isAdminRoutin
                     }
                 </View>
             )}
+            refreshControl={
+                <RefreshControl 
+                    refreshing={isRefreshing}
+                    onRefresh={()=>getRoutines({isLoadMore:false})}
+                    progressBackgroundColor={theme.colors.background}
+                    colors={[theme.colors.primary]}
+                />
+            }
         />
     );
 }

@@ -58,7 +58,7 @@ export const TrainingScreen = ({route, navigation}:Props) => {
                                 setIsTimerFinished(false)
                             }}
                         >
-                            <Text style={{color:theme.colors.primary}}>Terminar</Text>
+                            <Text style={{color:(theme.currentTheme === 'dark') ? theme.colors.primary : theme.whiteColor}}>Terminar</Text>
                         </TouchableOpacity>
 
                     )}
@@ -67,7 +67,7 @@ export const TrainingScreen = ({route, navigation}:Props) => {
                             <TouchableOpacity
                                 onPress={()=>changeStatusBreak({back:true})}
                             >
-                                <Text style={{color:theme.colors.primary}}>Volver</Text>
+                                <Text style={{color:(theme.currentTheme === 'dark') ? theme.colors.primary : theme.whiteColor}}>Volver</Text>
                             </TouchableOpacity>
                         )
                     }

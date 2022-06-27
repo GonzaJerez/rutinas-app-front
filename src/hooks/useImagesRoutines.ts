@@ -17,13 +17,18 @@ export const useImagesRoutines = () =>{
 
     const getImagesRoutines = async() => {
         if (!token) return;
-        const {imagesList}:ImgsRoutines = await routinesApi({
-            endpoint: '/routinesImages',
-            method: 'GET',
-            token
-        })
-
-        setImgsRoutines(imagesList)
+        try{
+            const {imagesList}:ImgsRoutines = await routinesApi({
+                endpoint: '/routinesImages',
+                method: 'GET',
+                token
+            })
+    
+            setImgsRoutines(imagesList)
+        }
+        catch(err){
+            console.log(err);
+        }
     }
 
     return {imgsRoutines}

@@ -15,7 +15,7 @@ export const NameApp = ({size, style}:Props) => {
     return (
         <View style={ styles.titleContainer }>
             <Text style={ { ...styles.title, color: colors.text, ...styles[size], ...style as any } }>
-                Rutinas app
+                Gym Tonic
             </Text>
         </View>
     )

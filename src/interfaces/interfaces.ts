@@ -150,11 +150,6 @@ export interface CombinedWorkout {
     _id?:              string;
 }
 
-/* export interface CombinedWorkoutIdOptional {
-    combinedWorkouts: WorkoutInRoutine[];
-    _id?:             string;
-} */
-
 export interface WorkoutInRoutine {
     workout:  Workout;
     tool:     string;
@@ -194,6 +189,39 @@ export interface RoutineCreateState {
     _id?:      string;
 }
 
+export interface DefaultRoutine {
+    _id:        string;
+    name:       string;
+    typeUnit:   'kg' | 'lb';
+    img:        string;
+    timer:      number;
+    days:       DayDefaultRoutine[]
+}
+
+export interface DayDefaultRoutine {
+    workouts?:  CombinedWorkoutsDefaultRoutine[];
+    _id:        string;
+}
+
+export interface CombinedWorkoutsDefaultRoutine {
+    combinedWorkouts:  WorkoutDefaultRoutine[];
+    _id?:              string;
+}
+
+export interface WorkoutDefaultRoutine {
+    workout:  string;
+    tool:     string;
+    sets:     SetDefaultRoutine[];
+    mode:     ModeType;
+    _id:      string;
+}
+
+export interface SetDefaultRoutine {
+    numReps:        string;
+    isDescending:   boolean;
+    _id:            string;
+}
+
 
 
 /**
@@ -220,7 +248,7 @@ export interface Movement {
     date:       number;
     from:       UserMovement;
     to:         UserMovement[];
-    routine:    Routine;
+    routines:    Routine[];
     routineAtSentMoment: Routine;
     msg?:        string;
 }

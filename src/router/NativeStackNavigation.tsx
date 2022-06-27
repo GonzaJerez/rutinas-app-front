@@ -1,6 +1,7 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect } from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import SplashScreen from 'react-native-splash-screen'
 
 import { ThemeContext } from '../context/theme/ThemeContext';
 import { AuthNavigator } from './AuthNavigator';
@@ -11,6 +12,7 @@ import { RoutinesContext } from '../context/routines/RoutinesContext';
 import { LoaderRequest } from '../components/modals/LoaderRequest';
 import { GroupsContext } from '../context/groups/GroupsContext';
 import { StatusBar } from 'react-native';
+import { OfflineModal } from '../components/modals/OfflineModal';
 
 
 export type RootStackNavigation = {
@@ -23,9 +25,13 @@ const Stack = createNativeStackNavigator<RootStackNavigation>();
 export const NativeStackNavigation = () => {
 
     const { theme } = useContext( ThemeContext )
-    const {status, isWaitingReqLogin} = useContext(AuthContext)
+    const {status, isWaitingReqLogin, isModalOfflineOpen, setIsModalOfflineOpen} = useContext(AuthContext)
     const {isWaitingReqRoutines} = useContext(RoutinesContext)
     const {isWaitingReqGroup} = useContext(GroupsContext)
+
+    useEffect(()=>{
+        SplashScreen.hide()
+    },[])
 
     if (status === 'checking') {
         return (
@@ -49,6 +55,11 @@ export const NativeStackNavigation = () => {
             {(isWaitingReqRoutines || isWaitingReqLogin || isWaitingReqGroup) 
                 && <LoaderRequest />
             }
+
+            <OfflineModal 
+                isOpenModal={isModalOfflineOpen}
+                setIsOpenModal={setIsModalOfflineOpen}
+            />
 
             <Stack.Navigator
                 screenOptions={{

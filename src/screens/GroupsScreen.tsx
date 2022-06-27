@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { View, StyleSheet, FlatList, TouchableOpacity, Text, Alert } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity, Text, Alert, ActivityIndicator, RefreshControl } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootSocialTopNavigator } from '../router/SocialTopNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,19 +15,21 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { RightSwipe } from '../components/swipers/RightSwipe';
 import { ListCardPlaceholder } from '../components/placeholders/ListCardPlaceholder';
 import { SecondaryButton } from '../components/buttons/SecondaryButton';
+import { ScreenEmpty } from '../components/ScreenEmpty';
 
 interface Props extends NativeStackScreenProps<RootSocialTopNavigator,'GroupsScreen'>{}
 
 export const GroupsScreen = ({navigation}:Props) => {
 
     useEffect(()=>{
-        getGroups()
+        getGroups({isLoadMore:false})
     },[])
 
-    const {listGroups, isLoadingRoutinesGroup, getGroups, loadMoreGroups, setGroupActual,leaveGroup} = useContext(GroupsContext)
+    const {listGroups, isLoadingGroups,isLoadingMore, getGroups, loadMoreGroups, setGroupActual,leaveGroup} = useContext(GroupsContext)
     const {theme} = useContext(ThemeContext)
 
     const [searchGroup, setSearchGroup] = useState('')
+    const [isRefreshing, setIsRefreshing] = useState(false)
     
     const {searchState} = useSearchUsersOrGroups({word:searchGroup})
     
@@ -64,8 +66,12 @@ export const GroupsScreen = ({navigation}:Props) => {
                 onPress={()=>navigation.navigate('CreateGroupScreen')}
                 style={styles.newGroupButton}
             />
+
+            {(listGroups.length === 0) && (
+                <ScreenEmpty text='No perteneces a ningún grupo aún'/>
+            )}
             
-            {(isLoadingRoutinesGroup)
+            {(isLoadingGroups)
                 ? (<ListCardPlaceholder />)
                 : (
                     <View style={styles.groupsContainer}>
@@ -87,8 +93,27 @@ export const GroupsScreen = ({navigation}:Props) => {
                             keyExtractor={(item)=>(item._id)}
                             onEndReached={loadMoreGroups}
                             ListFooterComponent={()=>(
-                                <View style={{height:140}}/>
+                                <View style={styles.footer}>
+                                    {(isLoadingMore)
+                                        ? (
+                                            <ActivityIndicator 
+                                                color={theme.colors.primary}
+                                            />
+                                        )
+                                        : (listGroups.length > 0) && (
+                                                <Text style={{color:theme.disabledColor}}>No hay más resultados</Text>
+                                            )
+                                    }
+                                </View>
                             )}
+                            refreshControl={
+                                <RefreshControl 
+                                    refreshing={isRefreshing}
+                                    onRefresh={()=>getGroups({isLoadMore:false})}
+                                    progressBackgroundColor={theme.colors.background}
+                                    colors={[theme.colors.primary]}
+                                />
+                            }
                         />
                     </View>
                 )
@@ -111,5 +136,9 @@ const styles = StyleSheet.create({
         // marginBottom:120,
         // paddingBottom:140,
         overflow:'hidden',
+    },
+    footer:{
+        height:140,
+        alignItems:'center',
     }
 });

@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useRef } from 'react'
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
 import { ThemeContext } from '../context/theme/ThemeContext'
 import { Title } from './headers/Title'
-import { LogoApp } from './LogoApp';
 
 export const IntroApp = () => {
 
@@ -24,16 +23,12 @@ export const IntroApp = () => {
   return (
     <View style={{...styles.container, backgroundColor:colors.primary}}>
 
-        <Animated.View style={{opacity:opacityTitle, top:100}}>
-            <Title text='Rutinas app' style={{color:theme.whiteColor}}/>
-        </Animated.View>
-
-        <Animated.View style={{position:'absolute', zIndex:-1}}>
-            <LogoApp size='big' backgroundLight/>
+        <Animated.View style={{opacity:opacityTitle}}>
+            <Title text='Gym Tonic' style={{color:theme.whiteColor}}/>
         </Animated.View>
 
         <View style={styles.author}>
-            <Text style={{color:theme.lightText}}>GonzaJerez &copy;</Text>
+            <Text style={{color:theme.whiteColor, fontWeight:'100', fontSize:12}}>GonzaJerez &copy;</Text>
         </View>
     </View>
   )
@@ -47,6 +42,6 @@ const styles = StyleSheet.create({
     },
     author:{
         position:'absolute',
-        bottom: 20
+        bottom:40
     }
 });

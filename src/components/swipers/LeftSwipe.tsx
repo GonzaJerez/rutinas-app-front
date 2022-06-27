@@ -10,7 +10,6 @@ import { ModalSendRoutine } from '../ModalSendRoutine';
 
 interface Props {
     routine: Routine;
-    // moveTopAnimation: () => void
 }
 
 
@@ -30,13 +29,13 @@ export const LeftSwipe = ({routine}:Props) => {
 
     const toCreateCopyRoutine = ()=>{
         createCopyRoutine(routine._id);
-        // moveTopAnimation();
     }
 
     return (
         <View style={ {...styles.container} }>
             <TouchableOpacity
-                style={{...styles.buttons, ...styles.firstButton, backgroundColor:theme.light}}
+                activeOpacity={0.95}
+                style={{...styles.buttons, ...styles.firstButton, backgroundColor:colors.primary}}
                 onPress={toEditRoutine}
             >
                 <Icon name='color-wand-outline' size={28} color={colors.text}/>
@@ -45,7 +44,8 @@ export const LeftSwipe = ({routine}:Props) => {
 
 
             <TouchableOpacity
-                style={{...styles.buttons, backgroundColor:theme.lightPrimary}}
+                activeOpacity={0.95}
+                style={{...styles.buttons, backgroundColor:colors.primary}}
                 onPress={toCreateCopyRoutine}
             >
                 <Icon name='copy-outline' size={28} color={colors.text}/>
@@ -53,6 +53,7 @@ export const LeftSwipe = ({routine}:Props) => {
             </TouchableOpacity>
 
             <TouchableOpacity
+                activeOpacity={0.95}
                 style={{...styles.buttons, ...styles.lastButton, backgroundColor:colors.primary}}
                 onPress={()=>setIsModalOpen(true)}
             >

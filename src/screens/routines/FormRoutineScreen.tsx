@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { View, Text, StyleSheet, TextInput, Dimensions, Image, FlatList } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Carousel from 'react-native-snap-carousel';
@@ -25,6 +25,7 @@ export const FormRoutineScreen = ({navigation}:Props) => {
 
     const { theme } = useContext( ThemeContext )
     const { colors } = theme;
+    const [imgIndex, setImgIndex] = useState(0)
 
     useEffect(()=>{
         navigation.setOptions({
@@ -44,6 +45,13 @@ export const FormRoutineScreen = ({navigation}:Props) => {
         onSubmit, 
         onGetOut
     } = useFormRoutine(navigation)
+    
+    // Obtiene indice de img de rutina para inicializar carousel
+    useEffect(()=>{
+        if (imgsRoutines.length === 0) return;
+        setImgIndex(Number(actualRoutine?.img.substring('routine'.length,actualRoutine.img.indexOf('.'))) - 1)
+    },[imgsRoutines])
+
     
     return (
         <View style={ styles.container }>
@@ -133,9 +141,11 @@ export const FormRoutineScreen = ({navigation}:Props) => {
                             />
                         ) }
                         sliderWidth={ WIDTHSCREEN}
-                        itemWidth={ WIDTHSCREEN - 160}
-                        inactiveSlideOpacity={ 0.9 }
+                        itemWidth={ WIDTHSCREEN - 180}
+                        inactiveSlideOpacity={ 0.6 }
                         onSnapToItem={(index)=>onChange(imgsRoutines[index], 'img')}
+                        initialScrollIndex={imgIndex}
+                        getItemLayout={(data,index)=>({length:(WIDTHSCREEN - 180), offset:(WIDTHSCREEN - 180) * index, index})}
                     />
                 </View>
 
@@ -205,10 +215,8 @@ const styles = StyleSheet.create( {
         height: 200
     },
     images: {
-        width: 200, 
         height: 200, 
         resizeMode:'contain', 
-        marginHorizontal:30
     },
     errorContainer: {
         justifyContent: 'center',

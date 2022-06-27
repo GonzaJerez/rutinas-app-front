@@ -36,6 +36,7 @@ export const useFormRoutine = (navigation: NativeStackNavigationProp<RootPrivate
 
     // Para que cuando terminen de cargar imgsRoutines ponga en el estado la primera img por defecto y no quede undefined
     useEffect(()=>{
+        if (actualRoutine) return;
         onChange(imgsRoutines[0], 'img')
     },[imgsRoutines])
 

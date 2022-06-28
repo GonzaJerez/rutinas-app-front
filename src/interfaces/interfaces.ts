@@ -200,12 +200,10 @@ export interface DefaultRoutine {
 
 export interface DayDefaultRoutine {
     workouts?:  CombinedWorkoutsDefaultRoutine[];
-    _id:        string;
 }
 
 export interface CombinedWorkoutsDefaultRoutine {
     combinedWorkouts:  WorkoutDefaultRoutine[];
-    _id?:              string;
 }
 
 export interface WorkoutDefaultRoutine {
@@ -213,13 +211,12 @@ export interface WorkoutDefaultRoutine {
     tool:     string;
     sets:     SetDefaultRoutine[];
     mode:     ModeType;
-    _id:      string;
 }
 
 export interface SetDefaultRoutine {
     numReps:        string;
+    weight:         string;
     isDescending:   boolean;
-    _id:            string;
 }
 
 

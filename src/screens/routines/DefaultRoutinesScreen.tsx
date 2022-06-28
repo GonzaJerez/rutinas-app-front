@@ -127,7 +127,7 @@ const styles = StyleSheet.create( {
     titleRoutine: {
         fontSize: 20,
         fontWeight:'500',
-        maxWidth:150,
+        maxWidth:140,
         maxHeight:60
     },
 } )

@@ -1,6 +1,3 @@
-// export const calculate1RM = (weight:number, numReps:number):number => {
-//     return weight / (1.0278 - 0.0278 * numReps)
-// }
 
 import { Set } from "../interfaces/interfaces"
 

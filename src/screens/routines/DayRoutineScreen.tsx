@@ -69,7 +69,12 @@ export const DayRoutineScreen = ( { route, navigation }: Props ) => {
                                 </Text>
                                 <Text style={{...styles.subtitle, color:theme.colors.text}}>{work.tool}</Text>
                                 <Text style={{...styles.label, color:theme.lightText}}>{work.mode}</Text>
-                                <Text style={{...styles.maxWeight, color:theme.lightText}}>{`1RM : ${calculate1RM(work.sets)} ${typeUnit}`}</Text>
+                                <Text style={{...styles.maxWeight, color:theme.lightText}}>
+                                    {(calculate1RM(work.sets) === '0')
+                                        ? `1RM : ${calculate1RM(work.sets)} ${typeUnit}`
+                                        : `1RM : No hay peso cargado aún`
+                                    }
+                                </Text>
                                 <View>
                                     {
                                         work.sets.map( set => (

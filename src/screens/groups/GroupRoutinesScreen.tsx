@@ -16,7 +16,7 @@ export const GroupRoutinesScreen = ({navigation}:Props) => {
 
     const {listRoutinesInGroup,actualGroup, getRoutinesByGroup,clearRoutinesInGroup, loadMoreRoutinesInGroup} = useContext(GroupsContext)
     const {user} = useContext(AuthContext)
-    const {theme:{colors}} = useContext(ThemeContext)
+    const {theme} = useContext(ThemeContext)
     const isAdmin = (actualGroup?.admin._id === user?._id)
 
     /**
@@ -37,7 +37,7 @@ export const GroupRoutinesScreen = ({navigation}:Props) => {
                         }
                         style={styles.imageGroup}
                     />
-                    <Text style={{...styles.nameGroup, color:colors.text}}>{actualGroup.name}</Text>
+                    <Text style={{...styles.nameGroup, color:theme.whiteColor}}>{actualGroup.name}</Text>
                 </TouchableOpacity>
             )
             

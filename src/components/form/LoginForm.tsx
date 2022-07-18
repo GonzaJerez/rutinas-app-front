@@ -19,6 +19,9 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootAuthNavigator } from '../../router/AuthNavigator';
 
+const logoGoogle = require('../../assets/logo-google.png')
+
+
 export const LoginForm = () => {
 
     const { theme } = useContext( ThemeContext )
@@ -118,7 +121,7 @@ export const LoginForm = () => {
                                 <View style={ {...styles.googleIconContainer, backgroundColor:theme.whiteColor} }>
                                     <Image
                                         style={ { ...styles.googleIcon } }
-                                        source={ require( '../../assets/logo-google.png' ) }
+                                        source={ logoGoogle }
                                     />
                                 </View>
                             </TouchableOpacity>

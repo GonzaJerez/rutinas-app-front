@@ -155,7 +155,16 @@ const styles = StyleSheet.create({
         height: 200,
         borderRadius: 100,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 5,
     },
     imageGroup:{
         width:200,
@@ -183,7 +192,7 @@ const styles = StyleSheet.create({
         alignSelf:'flex-start'
     },
     headerListText:{
-        fontSize:20,
+        fontSize:18,
         fontWeight:'400'
     },
     userContainer:{
@@ -210,7 +219,7 @@ const styles = StyleSheet.create({
         marginRight:10
     },
     nameUser:{
-        fontSize:22,
+        fontSize:18,
         fontWeight:'500'
     },
     adminText:{

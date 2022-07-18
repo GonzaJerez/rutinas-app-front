@@ -1,6 +1,9 @@
-# Gym Tonic - Frontend (React Native)
+# Gym Tonic - Frontend (React Native) <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/react/react.png" alt="React" width="30">
 
 Gym Tonic es una aplicación móvil para crear tus propias rutinas de entrenamiento.
+
+[Descargar apk ahora](https://github.com/GonzaJerez/rutinas-app-front/blob/main/app-release.apk?raw=true)
+* Solo disponible para Android <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/android/android.png" alt="React" width="24">
 
 <div>
   <img src="https://raw.githubusercontent.com/GonzaJerez/rutinas-app-front/main/preview/routinesOptions.gif" alt="React" width="200">
